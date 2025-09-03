@@ -1,0 +1,735 @@
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL") // Only needed when using a cloud provider that doesn't support the creation of new databases, like Heroku. Learn more: https://pris.ly/d/migrate-shadow
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  // Do not change the `id` field, it must be permanent and immutable.
+  id                 String              @id @default(cuid())
+  // The `username` can be updated anytime by the user.
+  // It will acquire the `id` as its default value.
+  username           String?             @unique
+  email              String?             @unique
+  hashedPassword     String?
+  name               String?
+  gender             Gender?
+  birthDate          DateTime?
+  phoneNumber        String?
+  address            String?
+  bio                String?
+  website            String?
+  relationshipStatus RelationshipStatus?
+  emailVerified      DateTime?
+  image              String?
+  accounts           Account[]
+  sessions           Session[]
+  profilePhoto       String?
+  coverPhoto         String?
+  post               Post[]
+  visualMedia        VisualMedia[]
+  postLikes          PostLike[]
+  comments           Comment[]
+  commentLikes       CommentLike[]
+  followers          Follow[]            @relation("following")
+  following          Follow[]            @relation("follower")
+  activities         Activity[]          @relation("activity")
+  notifications      Activity[]          @relation("notification")
+  
+  // Chat relationships
+  chatParticipants   Chat[]              @relation("ChatParticipants")
+  sentMessages       Message[]
+  
+  // Community relationships
+  createdCommunities Community[]         @relation("CommunityCreator")
+  communityMemberships CommunityMember[]
+  createdEvents      CommunityEvent[]
+  eventAttendances   EventAttendee[]
+  pinnedPosts        CommunityPinnedPost[]
+  communityMessages  CommunityMessage[]  @relation("CommunitySender")
+  messageReactions   MessageReaction[]   @relation("ReactionUser")
+  
+  // Monetization relationships
+  premiumBadge       PremiumBadge?
+  ownedThemes        UserTheme[]
+  cozyCoins          Int                 @default(0)
+  sentTips           Tip[]               @relation("TipSender")
+  receivedTips       Tip[]               @relation("TipReceiver")
+  boostedPosts       BoostedPost[]
+  
+  // Cosmetics relationships
+  userCosmetics      UserCosmetic[]
+  
+  // Text design relationships
+  postDesigns        PostTextDesign[]
+  commentDesigns     CommentTextDesign[]
+  chatDesigns        ChatTextDesign[]
+  purchasedTemplates UserTextDesignTemplate[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Follow {
+  id          Int    @id @default(autoincrement())
+  follower    User   @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+  following   User   @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+
+  @@unique([followerId, followingId])
+}
+
+model Post {
+  id          Int           @id @default(autoincrement())
+  content     String?
+  createdAt   DateTime      @default(now())
+  visualMedia VisualMedia[]
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  postLikes   PostLike[]
+  comments    Comment[]
+  
+  // Community relationships
+  communityPost CommunityPost?
+  pinnedIn      CommunityPinnedPost[]
+  
+  // Monetization relationships
+  tips          Tip[]
+  boostedPosts  BoostedPost[]
+  
+  // Text design relationships
+  textDesign    PostTextDesign?
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id           Int           @id @default(autoincrement())
+  content      String
+  createdAt    DateTime      @default(now())
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  commentLikes CommentLike[]
+
+  // If there is a `postId`, it is a comment
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  // If there is a `parentId`, it is a reply
+  parent   Comment? @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId Int?
+
+  // Self-referential relation
+  replies Comment[] @relation("Replies")
+  
+  // Text design relationship
+  textDesign CommentTextDesign?
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+
+  @@unique([userId, commentId])
+}
+
+model VisualMedia {
+  id         Int             @id @default(autoincrement())
+  type       VisualMediaType @default(PHOTO)
+  fileName   String
+  uploadedAt DateTime        @default(now())
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  post       Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     Int
+}
+
+// This Activity model is similar to this approach: https://stackoverflow.com/a/1766371/8434369
+// Example:
+// * If the activity type is 'CREATE_COMMENT', the `sourceId` must be the `id` of the Comment and
+// its `targetId` must be the `id` of the Post that was commented on.
+//
+// * If the activity type is 'POST_LIKE', the `sourceId` must be the `id` of the PostLike and
+// its `targetId` must be the `id` of the liked Post.
+//
+// * If the activity type is 'COMMENT_MENTION', the `sourceId` must be the `id` of the Comment and
+// its `targetId` must be the `id` of the Post that was commented on.
+model Activity {
+  id                   Int          @id @default(autoincrement())
+  createdAt            DateTime     @default(now())
+  type                 ActivityType
+  sourceId             Int
+  targetId             Int?
+  sourceUser           User         @relation("activity", fields: [sourceUserId], references: [id], onDelete: Cascade)
+  sourceUserId         String
+  targetUser           User         @relation("notification", fields: [targetUserId], references: [id], onDelete: Cascade)
+  targetUserId         String
+  isNotificationActive Boolean      @default(true)
+  isNotificationRead   Boolean      @default(false)
+}
+
+enum ActivityType {
+  CREATE_FOLLOW // CREATE_FOLLOW does not use a `targetId`, only `targetUserId`
+
+  POST_LIKE
+  POST_MENTION // POST_MENTION does not use a `targetId`, only `targetUserId`
+
+  CREATE_COMMENT
+  COMMENT_MENTION
+  COMMENT_LIKE
+
+  CREATE_REPLY
+  REPLY_MENTION
+  REPLY_LIKE
+}
+
+enum VisualMediaType {
+  PHOTO
+  VIDEO
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  NONBINARY
+}
+
+enum RelationshipStatus {
+  SINGLE
+  IN_A_RELATIONSHIP
+  ENGAGED
+  MARRIED
+}
+
+model Chat {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  participants User[]    @relation("ChatParticipants")
+  messages     Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String
+  
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String
+}
+
+// Community Models
+model Community {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    CommunityCategory
+  avatar      String?
+  banner      String?
+  theme       CommunityTheme @default(DEFAULT)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  creator     User     @relation("CommunityCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId   String
+  
+  members     CommunityMember[]
+  posts       CommunityPost[]
+  events      CommunityEvent[]
+  chatRooms   CommunityChatRoom[]
+  pinnedPosts CommunityPinnedPost[]
+  zones       CommunityZone[]
+  
+  // Community cosmetics
+  communityCosmetics CommunityCosmetic[]
+  
+  @@unique([name])
+}
+
+model CommunityMember {
+  id          String            @id @default(cuid())
+  role        CommunityRole     @default(MEMBER)
+  joinedAt    DateTime          @default(now())
+  
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  community   Community         @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  
+  chatRooms   CommunityChatRoom[]
+  
+  @@unique([userId, communityId])
+}
+
+model CommunityPost {
+  id          Int       @id @default(autoincrement())
+  content     String?
+  createdAt   DateTime  @default(now())
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  
+  // Link to regular post
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int       @unique
+  
+  zone        CommunityZone? @relation(fields: [zoneId], references: [id])
+  zoneId      String?
+}
+
+model CommunityEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  eventType   EventType @default(DISCUSSION)
+  startTime   DateTime
+  endTime     DateTime?
+  location    String?   // Can be virtual link or physical address
+  maxAttendees Int?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  creator     User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId   String
+  
+  attendees   EventAttendee[]
+}
+
+model EventAttendee {
+  id      String @id @default(cuid())
+  status  AttendeeStatus @default(GOING)
+  joinedAt DateTime @default(now())
+  
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  event   CommunityEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+  
+  @@unique([userId, eventId])
+}
+
+model CommunityPinnedPost {
+  id          String    @id @default(cuid())
+  pinnedAt    DateTime  @default(now())
+  pinnedBy    User      @relation(fields: [pinnedById], references: [id], onDelete: Cascade)
+  pinnedById  String
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int
+  
+  @@unique([communityId, postId])
+}
+
+model CommunityChatRoom {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  
+  messages    CommunityMessage[]
+  participants CommunityMember[]
+}
+
+model CommunityMessage {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  sender     User               @relation("CommunitySender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   String
+  chatRoom   CommunityChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  chatRoomId String
+  
+  reactions  MessageReaction[]
+  textDesign ChatTextDesign?
+}
+
+model MessageReaction {
+  id        String   @id @default(cuid())
+  emoji     String
+  createdAt DateTime @default(now())
+  
+  user      User             @relation("ReactionUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  message   CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String
+  
+  @@unique([userId, messageId, emoji])
+}
+
+model CommunityZone {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  emoji       String?
+  permissions String[]  // JSON array of permissions
+  order       Int       @default(0)
+  
+  community   Community      @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  posts       CommunityPost[]
+}
+
+// Enums
+enum CommunityCategory {
+  TECHNOLOGY
+  GAMING
+  CRYPTOCURRENCY
+  NEWS
+  ENTERTAINMENT
+  SPORTS
+  EDUCATION
+  BUSINESS
+  LIFESTYLE
+  SCIENCE
+  ART
+  MUSIC
+  OTHER
+}
+
+enum CommunityTheme {
+  DEFAULT
+  DEVELOPER    // Dark neon theme
+  GAMER       // Gaming themed
+  CRYPTO      // Financial/trading theme
+  NEWS        // Clean news theme
+  CREATIVE    // Artistic theme
+}
+
+enum CommunityRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum EventType {
+  AMA
+  TOURNAMENT
+  DISCUSSION
+  WORKSHOP
+  MEETUP
+  LIVESTREAM
+  OTHER
+}
+
+enum AttendeeStatus {
+  GOING
+  INTERESTED
+  NOT_GOING
+}
+
+// Monetization Models
+model PremiumBadge {
+  id          String   @id @default(cuid())
+  type        BadgeType @default(VERIFIED)
+  purchasedAt DateTime @default(now())
+  expiresAt   DateTime?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @unique
+}
+
+model Theme {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  price       Float     @default(0)
+  colorScheme Json      // Store color scheme as JSON
+  isActive    Boolean   @default(true)
+  category    ThemeCategory
+  
+  users       UserTheme[]
+}
+
+model UserTheme {
+  id          String   @id @default(cuid())
+  purchasedAt DateTime @default(now())
+  isActive    Boolean  @default(false)
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  theme       Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  themeId     String
+  
+  @@unique([userId, themeId])
+}
+
+model Tip {
+  id        String   @id @default(cuid())
+  amount    Int      // Amount in Cozy Coins
+  message   String?
+  createdAt DateTime @default(now())
+  
+  sender    User     @relation("TipSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId  String
+  receiver  User     @relation("TipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  postId    Int?
+}
+
+model BoostedPost {
+  id        String   @id @default(cuid())
+  duration  Int      // Duration in hours
+  amount    Float    // Amount paid
+  startsAt  DateTime @default(now())
+  endsAt    DateTime
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+}
+
+model Cosmetic {
+  id        String   @id @default(cuid())
+  type      CosmeticType
+  name      String
+  preview   String   // Preview image URL
+  assetUrl  String   // Asset URL (CSS, SVG, etc.)
+  metadata  Json?    // Additional metadata (colors, properties, etc.)
+  createdAt DateTime @default(now())
+  
+  userCosmetics UserCosmetic[]
+  communityCosmetics CommunityCosmetic[]
+}
+
+model UserCosmetic {
+  id          String   @id @default(cuid())
+  isActive    Boolean  @default(false)
+  appliedAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  cosmetic    Cosmetic @relation(fields: [cosmeticId], references: [id], onDelete: Cascade)
+  cosmeticId  String
+  
+  @@unique([userId, cosmeticId])
+}
+
+// Text Design Models
+model PostTextDesign {
+  id          String   @id @default(cuid())
+  fontFamily  String?  // Custom font family
+  fontSize    String?  // Font size (e.g., "16px", "1.2rem")
+  fontWeight  String?  // Font weight (e.g., "bold", "400")
+  color       String?  // Text color
+  backgroundColor String? // Background color
+  border      String?  // Border styles
+  borderRadius String? // Border radius
+  padding     String?  // Padding
+  margin      String?  // Margin
+  textAlign   String?  // Text alignment
+  textShadow  String?  // Text shadow
+  boxShadow   String?  // Box shadow
+  gradient    String?  // Background gradient
+  animation   String?  // CSS animation
+  customCSS   String?  // Custom CSS
+  iframeUrl   String?  // External iframe URL for advanced designs
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int      @unique
+}
+
+model CommentTextDesign {
+  id          String   @id @default(cuid())
+  fontFamily  String?
+  fontSize    String?
+  fontWeight  String?
+  color       String?
+  backgroundColor String?
+  border      String?
+  borderRadius String?
+  padding     String?
+  margin      String?
+  textAlign   String?
+  textShadow  String?
+  boxShadow   String?
+  gradient    String?
+  animation   String?
+  customCSS   String?
+  iframeUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  comment     Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId   Int      @unique
+}
+
+model ChatTextDesign {
+  id          String   @id @default(cuid())
+  fontFamily  String?
+  fontSize    String?
+  fontWeight  String?
+  color       String?
+  backgroundColor String?
+  border      String?
+  borderRadius String?
+  padding     String?
+  margin      String?
+  textAlign   String?
+  textShadow  String?
+  boxShadow   String?
+  gradient    String?
+  animation   String?
+  customCSS   String?
+  iframeUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  message     CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId   String   @unique
+}
+
+model CommunityCosmetic {
+  id          String   @id @default(cuid())
+  isActive    Boolean  @default(false)
+  appliedAt   DateTime @default(now())
+  
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String
+  cosmetic    Cosmetic @relation(fields: [cosmeticId], references: [id], onDelete: Cascade)
+  cosmeticId  String
+  
+  @@unique([communityId, cosmeticId])
+}
+
+model TextDesignTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    TextDesignCategory
+  price       Float    @default(0) // Price in Cozy Coins
+  isActive    Boolean  @default(true)
+  isFree      Boolean  @default(false)
+  preview     String   // Preview image URL
+  styles      Json     // JSON object containing all style properties
+  iframeUrl   String?  // Optional iframe URL for advanced templates
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  purchases   UserTextDesignTemplate[]
+}
+
+model UserTextDesignTemplate {
+  id          String   @id @default(cuid())
+  purchasedAt DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  template    TextDesignTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateId  String
+  
+  @@unique([userId, templateId])
+}
+
+// Additional enums
+enum CosmeticType {
+  THEME
+  BANNER
+  NAMEPLATE
+  PFP_FRAME
+  POST_SKIN
+  COMMENT_FLAIR
+  CHAT_THEME
+  TEXT_DESIGN
+}
+
+enum TextDesignCategory {
+  CLASSIC
+  MODERN
+  NEON
+  GAMING
+  PROFESSIONAL
+  ARTISTIC
+  ANIMATED
+  GRADIENT
+}
+enum BadgeType {
+  VERIFIED
+  PREMIUM
+  SUPPORTER
+  CREATOR
+}
+
+enum ThemeCategory {
+  CLASSIC
+  NEON
+  MINIMAL
+  GAMING
+  PROFESSIONAL
+}

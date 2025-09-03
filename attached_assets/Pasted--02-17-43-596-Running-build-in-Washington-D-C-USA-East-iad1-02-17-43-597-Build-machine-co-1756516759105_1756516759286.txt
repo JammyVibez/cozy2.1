@@ -1,0 +1,70 @@
+[02:17:43.596] Running build in Washington, D.C., USA (East) – iad1
+[02:17:43.597] Build machine configuration: 2 cores, 8 GB
+[02:17:43.618] Cloning github.com/JammyVibez/cozy (Branch: main, Commit: b892628)
+[02:17:43.774] Previous build caches not available
+[02:17:43.947] Cloning completed: 329.000ms
+[02:17:44.412] Running "vercel build"
+[02:17:44.798] Vercel CLI 46.1.0
+[02:17:45.454] Installing dependencies...
+[02:17:49.610] npm warn deprecated q@1.5.1: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+[02:17:49.610] npm warn deprecated
+[02:17:49.610] npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+[02:17:51.517] npm warn deprecated @supabase/auth-helpers-shared@0.7.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[02:17:51.719] npm warn deprecated @supabase/auth-helpers-nextjs@0.10.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[02:17:54.088] npm warn deprecated @humanwhocodes/config-array@0.11.14: Use @eslint/config-array instead
+[02:17:54.116] npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+[02:18:13.730] 
+[02:18:13.731] > munia@0.1.0 postinstall
+[02:18:13.731] > prisma generate
+[02:18:13.731] 
+[02:18:14.180] Prisma schema loaded from prisma/schema.prisma
+[02:18:15.093] 
+[02:18:15.094] ✔ Generated Prisma Client (5.0.0 | library) to ./node_modules/@prisma/client in 451ms
+[02:18:15.095] You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+[02:18:15.095] ```
+[02:18:15.095] import { PrismaClient } from '@prisma/client'
+[02:18:15.095] const prisma = new PrismaClient()
+[02:18:15.096] ```
+[02:18:15.160] 
+[02:18:15.160] added 910 packages in 29s
+[02:18:15.161] 
+[02:18:15.161] 206 packages are looking for funding
+[02:18:15.161]   run `npm fund` for details
+[02:18:15.241] Running "npm run build"
+[02:18:15.365] 
+[02:18:15.365] > munia@0.1.0 build
+[02:18:15.365] > next build
+[02:18:15.365] 
+[02:18:15.905] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[02:18:15.905] This information is used to shape Next.js' roadmap and prioritize features.
+[02:18:15.906] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[02:18:15.906] https://nextjs.org/telemetry
+[02:18:15.906] 
+[02:18:15.960]   ▲ Next.js 14.2.5
+[02:18:15.961]   - Experiments (use with caution):
+[02:18:15.961]     · scrollRestoration
+[02:18:15.961] 
+[02:18:16.033]    Creating an optimized production build ...
+[02:18:37.440] Failed to compile.
+[02:18:37.441] 
+[02:18:37.441] ./src/lib/pusher/pusherClient.ts
+[02:18:37.441] Error: 
+[02:18:37.441]   [31mx[0m You're importing a component that needs server-only. That only works in a Server Component which is not supported in the pages/ directory. Read more: https://nextjs.org/docs/getting-started/
+[02:18:37.441]   [31m|[0m react-essentials#server-components
+[02:18:37.441]   [31m|[0m 
+[02:18:37.441]   [31m|[0m 
+[02:18:37.441]    ,-[[36;1;4m/vercel/path0/src/lib/pusher/pusherClient.ts[0m:1:1]
+[02:18:37.441]  [2m1[0m | import 'server-only';
+[02:18:37.441]    : [31;1m^^^^^^^^^^^^^^^^^^^^^[0m
+[02:18:37.441]  [2m2[0m | import Pusher from 'pusher';
+[02:18:37.441]  [2m3[0m | 
+[02:18:37.441]  [2m4[0m | const pusherServer = new Pusher({
+[02:18:37.441]    `----
+[02:18:37.441] 
+[02:18:37.441] Import trace for requested module:
+[02:18:37.442] ./src/lib/pusher/pusherClient.ts
+[02:18:37.442] ./src/components/RealtimeChat.tsx
+[02:18:37.442] 
+[02:18:37.451] 
+[02:18:37.451] > Build failed because of webpack errors
+[02:18:37.468] Error: Command "npm run build" exited with 1

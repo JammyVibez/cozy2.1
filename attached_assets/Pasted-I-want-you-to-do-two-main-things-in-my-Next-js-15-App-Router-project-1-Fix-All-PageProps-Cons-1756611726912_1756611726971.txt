@@ -1,0 +1,83 @@
+I want you to do two main things in my Next.js 15 (App Router) project:
+
+1. Fix All PageProps / Constraint Errors
+
+My project is failing builds on Vercel with errors like:
+Type 'XPageProps' does not satisfy the constraint 'PageProps'.
+
+Go through all page.tsx, layout.tsx, and generateMetadata files.
+
+Remove reliance on PageProps from next (which is deprecated).
+
+Instead, create a shared helper type, for example:
+
+interface RouteParams<T extends Record<string, string>> {
+  params: T
+  searchParams?: Record<string, string | string[] | undefined>
+}
+
+
+Update all routes to use this type so builds pass with no type errors.
+
+Make sure everything works with next build and no errors occur when deploying to Vercel.
+
+2. Add a Full Cosmetics Shop + Community Customization System
+Database (Prisma + Supabase/Postgres)
+
+Add Cosmetic, UserCosmetic, and CommunityCosmetic models.
+
+Store fields like: id, type, name, preview, assetUrl, metadata, createdAt.
+
+Users and communities can each have active cosmetics.
+
+Backend API Routes
+
+/api/cosmetics → fetch all cosmetics.
+
+/api/cosmetics/apply → assign cosmetics to users or communities.
+
+/api/cosmetics/admin/add → allow admins to add cosmetics via GitHub raw asset URLs.
+
+Frontend (Shop Page + Integration)
+
+Add a shop grid (Tailwind) that lists cosmetics by type:
+
+User cosmetics: themes, banners, nameplates, pfp frames.
+
+Community cosmetics: community banners, post skins, comment flairs, chat themes.
+
+Show preview images, and allow “Apply” buttons to assign cosmetics.
+
+Profile page → show active user cosmetics.
+
+Community page → show active community cosmetics.
+
+Admin Panel
+
+Add /admin/cosmetics page (role-protected).
+
+Form to add new cosmetics (name, type, preview URL, asset URL).
+
+Community Features Expansion
+
+Expand tabs: posts, events, chat, members, about, customize.
+
+Events → basic CRUD for community events.
+
+Chat → community chat rooms with customization support.
+
+Members → roles (creator, admin, mod, member).
+
+Customize tab → apply cosmetics to the community.
+
+Requirements
+
+Use Tailwind for styling (clean, responsive).
+
+All features should be modular (easy to extend with rarity, coins, unlocks later).
+
+Protect /admin and community customization with RBAC.
+
+Ensure the entire app builds cleanly with next build and deploys to Vercel with no build/runtime errors.
+
+⚡ Key Goal: After applying your changes, I should be able to run next build && vercel deploy with zero errors, and have a fully working cosmetics shop + community system out of the box.

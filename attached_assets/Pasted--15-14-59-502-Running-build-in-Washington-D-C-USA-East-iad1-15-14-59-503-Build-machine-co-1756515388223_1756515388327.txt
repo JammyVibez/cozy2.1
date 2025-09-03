@@ -1,0 +1,94 @@
+[15:14:59.502] Running build in Washington, D.C., USA (East) – iad1
+[15:14:59.503] Build machine configuration: 2 cores, 8 GB
+[15:14:59.529] Cloning github.com/JammyVibez/cozy (Branch: main, Commit: b34c2e0)
+[15:14:59.681] Previous build caches not available
+[15:14:59.886] Cloning completed: 356.000ms
+[15:15:00.350] Running "vercel build"
+[15:15:00.786] Vercel CLI 46.1.0
+[15:15:01.499] Installing dependencies...
+[15:15:06.047] npm warn deprecated q@1.5.1: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+[15:15:06.048] npm warn deprecated
+[15:15:06.049] npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+[15:15:08.116] npm warn deprecated @supabase/auth-helpers-shared@0.7.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[15:15:08.524] npm warn deprecated @supabase/auth-helpers-nextjs@0.10.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[15:15:09.726] npm warn deprecated @humanwhocodes/config-array@0.11.14: Use @eslint/config-array instead
+[15:15:09.802] npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+[15:15:34.338] 
+[15:15:34.339] > munia@0.1.0 postinstall
+[15:15:34.339] > prisma generate
+[15:15:34.339] 
+[15:15:34.795] Prisma schema loaded from prisma/schema.prisma
+[15:15:35.761] 
+[15:15:35.761] ✔ Generated Prisma Client (5.0.0 | library) to ./node_modules/@prisma/client in 476ms
+[15:15:35.762] You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+[15:15:35.762] ```
+[15:15:35.762] import { PrismaClient } from '@prisma/client'
+[15:15:35.762] const prisma = new PrismaClient()
+[15:15:35.762] ```
+[15:15:35.845] 
+[15:15:35.846] added 910 packages in 34s
+[15:15:35.846] 
+[15:15:35.846] 206 packages are looking for funding
+[15:15:35.846]   run `npm fund` for details
+[15:15:35.936] Running "npm run build"
+[15:15:36.061] 
+[15:15:36.062] > munia@0.1.0 build
+[15:15:36.062] > next build
+[15:15:36.062] 
+[15:15:36.650] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[15:15:36.651] This information is used to shape Next.js' roadmap and prioritize features.
+[15:15:36.651] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[15:15:36.651] https://nextjs.org/telemetry
+[15:15:36.651] 
+[15:15:36.708]   ▲ Next.js 14.2.5
+[15:15:36.709]   - Experiments (use with caution):
+[15:15:36.709]     · scrollRestoration
+[15:15:36.709] 
+[15:15:36.788]    Creating an optimized production build ...
+[15:16:09.021] Browserslist: caniuse-lite is outdated. Please run:
+[15:16:09.022]   npx update-browserslist-db@latest
+[15:16:09.022]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[15:16:19.538] Browserslist: caniuse-lite is outdated. Please run:
+[15:16:19.538]   npx update-browserslist-db@latest
+[15:16:19.540]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[15:16:22.564]  ⚠ Compiled with warnings
+[15:16:22.565] 
+[15:16:22.565] ./src/components/RealtimeChat.tsx
+[15:16:22.565] Attempted import error: '@/lib/pusher/pusherClient' does not contain a default export (imported as 'pusher').
+[15:16:22.565] 
+[15:16:22.566] Import trace for requested module:
+[15:16:22.566] ./src/components/RealtimeChat.tsx
+[15:16:22.566] 
+[15:16:22.566] ./src/components/RealtimeChat.tsx
+[15:16:22.566] Attempted import error: '@/lib/pusher/pusherClient' does not contain a default export (imported as 'pusher').
+[15:16:22.566] 
+[15:16:22.567] Import trace for requested module:
+[15:16:22.567] ./src/components/RealtimeChat.tsx
+[15:16:22.567] 
+[15:16:22.567] ./src/components/RealtimeChat.tsx
+[15:16:22.567] Attempted import error: '@/lib/pusher/pusherClient' does not contain a default export (imported as 'pusher').
+[15:16:22.567] 
+[15:16:22.568] Import trace for requested module:
+[15:16:22.568] ./src/components/RealtimeChat.tsx
+[15:16:22.568] 
+[15:16:22.568] ./src/components/RealtimeChat.tsx
+[15:16:22.568] Attempted import error: '@/lib/pusher/pusherClient' does not contain a default export (imported as 'pusher').
+[15:16:22.569] 
+[15:16:22.569] Import trace for requested module:
+[15:16:22.569] ./src/components/RealtimeChat.tsx
+[15:16:22.569] 
+[15:16:22.654]  ✓ Compiled successfully
+[15:16:22.655]    Linting and checking validity of types ...
+[15:16:49.143] Failed to compile.
+[15:16:49.143] 
+[15:16:49.144] ./src/components/DiscoverPage.tsx:142:45
+[15:16:49.145] Type error: Property 'target' does not exist on type 'string'.
+[15:16:49.145] 
+[15:16:49.145] [0m [90m 140 |[39m           placeholder[33m=[39m{[32m`Search ${activeTab}...`[39m}[0m
+[15:16:49.145] [0m [90m 141 |[39m           value[33m=[39m{searchQuery}[0m
+[15:16:49.145] [0m[31m[1m>[22m[39m[90m 142 |[39m           onChange[33m=[39m{(e) [33m=>[39m setSearchQuery(e[33m.[39mtarget[33m.[39mvalue)}[0m
+[15:16:49.145] [0m [90m     |[39m                                             [31m[1m^[22m[39m[0m
+[15:16:49.145] [0m [90m 143 |[39m           onKeyDown[33m=[39m{(e) [33m=>[39m e[33m.[39mkey [33m===[39m [32m'Enter'[39m [33m&&[39m handleSearch(searchQuery)}[0m
+[15:16:49.145] [0m [90m 144 |[39m           className[33m=[39m[32m"pl-10 w-full"[39m[0m
+[15:16:49.145] [0m [90m 145 |[39m         [33m/[39m[33m>[39m[0m
+[15:16:49.226] Error: Command "npm run build" exited with 1
