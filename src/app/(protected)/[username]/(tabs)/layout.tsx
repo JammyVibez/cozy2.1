@@ -8,11 +8,17 @@ export default async function Layout({
   params,
 }: {
   children: React.ReactNode;
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
+  const { username } = await params; // ✅ unwrap params in Next.js 15
+
   const [user] = await getServerUser();
-  const profile = await getProfile(params.username);
-  if (!profile) return <p>This user does not exist or may have changed their username.</p>;
+  const profile = await getProfile(username);
+
+  if (!profile) {
+    return <p>This user does not exist or may have changed their username.</p>;
+  }
+
   const isOwnProfile = profile.id === user?.id;
 
   return (
