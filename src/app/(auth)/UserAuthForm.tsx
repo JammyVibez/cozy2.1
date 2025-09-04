@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 import { useToast } from '@/hooks/useToast';
 import { AtSign, Facebook, Github, Google, LogInSquare, Hide, View } from '@/svg_components';
-import type { SignInResponse } from 'next-auth/react';
+import { signIn, type SignInResponse } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
@@ -35,7 +35,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
     facebook: false,
     google: false,
   });
-  // Disable buttons when loading
+
   const areButtonsDisabled =
     loading.email || loading.emailPassword || loading.github || loading.facebook || loading.google;
   const searchParams = useSearchParams();
@@ -43,17 +43,9 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
   const { showToast } = useToast();
   const router = useRouter();
 
-  const onEmailChange = useCallback((text: string) => {
-    setEmail(text);
-  }, []);
-
-  const onPasswordChange = useCallback((text: string) => {
-    setPassword(text);
-  }, []);
-
-  const onNameChange = useCallback((text: string) => {
-    setName(text);
-  }, []);
+  const onEmailChange = useCallback((text: string) => setEmail(text), []);
+  const onPasswordChange = useCallback((text: string) => setPassword(text), []);
+  const onNameChange = useCallback((text: string) => setName(text), []);
 
   const submitEmailPassword = useCallback(async () => {
     setLoading((prev) => ({ ...prev, emailPassword: true }));
@@ -67,7 +59,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        const result = await SignInResponse('credentials', {
+        const result: SignInResponse | undefined = await signIn('credentials', {
           email: email.toLowerCase(),
           password,
           name,
@@ -80,13 +72,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        showToast({
-          type: 'success',
-          title: 'Account Created',
-          message: 'Welcome to Cozy!',
-        });
-
-        // Redirect to callback URL after successful registration
+        showToast({ type: 'success', title: 'Account Created', message: 'Welcome to Cozy!' });
         router.push(callbackUrl);
       } else {
         const validateData = loginSchema.safeParse({ email, password });
@@ -95,7 +81,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        const result = await SignInResponse('credentials', {
+        const result: SignInResponse | undefined = await signIn('credentials', {
           email: email.toLowerCase(),
           password,
           action: 'login',
@@ -107,13 +93,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        showToast({
-          type: 'success',
-          title: 'Login Successful',
-          message: 'Welcome back!',
-        });
-
-        // Redirect to callback URL after successful login
+        showToast({ type: 'success', title: 'Login Successful', message: 'Welcome back!' });
         router.push(callbackUrl);
       }
     } catch (error) {
@@ -124,27 +104,23 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
   }, [mode, name, email, password, showToast, router, callbackUrl]);
 
   const submitEmail = useCallback(async () => {
-    setLoading((prev) => ({
-      ...prev,
-      email: true,
-    }));
+    setLoading((prev) => ({ ...prev, email: true }));
 
     const validateEmail = emailSchema.safeParse(email);
     if (validateEmail.success) {
-      const signInResult = await SignInResponse('email', {
+      const signInResult: SignInResponse | undefined = await signIn('email', {
         email: email.toLowerCase(),
         redirect: false,
         callbackUrl,
       });
 
-      setLoading((prev) => ({
-        ...prev,
-        email: false,
-      }));
+      setLoading((prev) => ({ ...prev, email: false }));
+
       if (!signInResult?.ok) {
         showToast({ type: 'error', title: 'Something went wrong' });
         return;
       }
+
       showToast({
         type: 'success',
         title: 'Email Sent',
@@ -152,26 +128,18 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
       });
     } else {
       setInputError(validateEmail.error.issues[0].message);
-      setLoading((prev) => ({
-        ...prev,
-        email: false,
-      }));
+      setLoading((prev) => ({ ...prev, email: false }));
     }
   }, [email, callbackUrl, showToast]);
 
   const signInWithProvider = useCallback(
     (provider: 'github' | 'google' | 'facebook') => async () => {
-      setLoading((prev) => ({
-        ...prev,
-        [provider]: true,
-      }));
-      const signInResult = await SignInResponse(provider, {
-        callbackUrl,
-      });
-      setLoading((prev) => ({
-        ...prev,
-        [provider]: false,
-      }));
+      setLoading((prev) => ({ ...prev, [provider]: true }));
+
+      const signInResult: SignInResponse | undefined = await signIn(provider, { callbackUrl });
+
+      setLoading((prev) => ({ ...prev, [provider]: false }));
+
       if (signInResult?.error) {
         showToast({ type: 'error', title: 'Something went wrong' });
       }
@@ -283,6 +251,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
         !inputError.includes('email') &&
         !inputError.includes('Password') &&
         !inputError.includes('Name') && <div className="mb-4 text-sm text-red-500">{inputError}</div>}
+
       <div className="relative mb-4">
         <div className="absolute inset-0 flex items-center px-1">
           <span className="w-full border-t border-muted" />
@@ -291,6 +260,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           <span className="bg-background px-3 text-muted-foreground">OR CONTINUE WITH</span>
         </div>
       </div>
+
       <div className="mb-4 flex flex-col gap-3">
         <Button
           onPress={signInWithProvider('github')}
