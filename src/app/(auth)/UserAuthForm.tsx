@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 import { useToast } from '@/hooks/useToast';
 import { AtSign, Facebook, Github, Google, LogInSquare, Hide, View } from '@/svg_components';
-import { signIn } from 'next-auth/react';
+import type { SignInResponse } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
@@ -36,7 +36,8 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
     google: false,
   });
   // Disable buttons when loading
-  const areButtonsDisabled = loading.email || loading.emailPassword || loading.github || loading.facebook || loading.google;
+  const areButtonsDisabled =
+    loading.email || loading.emailPassword || loading.github || loading.facebook || loading.google;
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('from') || '/feed';
   const { showToast } = useToast();
@@ -66,7 +67,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        const result = await signIn('credentials', {
+        const result = await SignInResponse('credentials', {
           email: email.toLowerCase(),
           password,
           name,
@@ -84,7 +85,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           title: 'Account Created',
           message: 'Welcome to Cozy!',
         });
-        
+
         // Redirect to callback URL after successful registration
         router.push(callbackUrl);
       } else {
@@ -94,7 +95,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           return;
         }
 
-        const result = await signIn('credentials', {
+        const result = await SignInResponse('credentials', {
           email: email.toLowerCase(),
           password,
           action: 'login',
@@ -111,7 +112,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
           title: 'Login Successful',
           message: 'Welcome back!',
         });
-        
+
         // Redirect to callback URL after successful login
         router.push(callbackUrl);
       }
@@ -130,7 +131,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
 
     const validateEmail = emailSchema.safeParse(email);
     if (validateEmail.success) {
-      const signInResult = await signIn('email', {
+      const signInResult = await SignInResponse('email', {
         email: email.toLowerCase(),
         redirect: false,
         callbackUrl,
@@ -164,7 +165,7 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
         ...prev,
         [provider]: true,
       }));
-      const signInResult = await signIn(provider, {
+      const signInResult = await SignInResponse(provider, {
         callbackUrl,
       });
       setLoading((prev) => ({
@@ -219,13 +220,15 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
               Icon={AtSign}
             />
           </div>
-          <div className="mb-4 relative">
+          <div className="relative mb-4">
             <TextInput
               value={password}
               onChange={onPasswordChange}
               label="Password"
               type={showPassword ? 'text' : 'password'}
-              errorMessage={inputError?.includes('Password') || inputError?.includes('password') ? inputError : undefined}
+              errorMessage={
+                inputError?.includes('Password') || inputError?.includes('password') ? inputError : undefined
+              }
             />
             <button
               type="button"
@@ -276,11 +279,10 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
         </>
       )}
 
-      {inputError && !inputError.includes('email') && !inputError.includes('Password') && !inputError.includes('Name') && (
-        <div className="mb-4 text-sm text-red-500">
-          {inputError}
-        </div>
-      )}
+      {inputError &&
+        !inputError.includes('email') &&
+        !inputError.includes('Password') &&
+        !inputError.includes('Name') && <div className="mb-4 text-sm text-red-500">{inputError}</div>}
       <div className="relative mb-4">
         <div className="absolute inset-0 flex items-center px-1">
           <span className="w-full border-t border-muted" />
