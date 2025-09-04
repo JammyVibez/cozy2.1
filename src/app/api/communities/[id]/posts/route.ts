@@ -7,18 +7,18 @@ import { toGetPost } from '@/lib/prisma/toGetPost';
 // Assuming GET and POST are in separate files named GET.ts and POST.ts in the same directory
 // This file acts as an entry point and handles the promise resolution for params.
 
-async function GET(
+export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params;
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const communityId = resolvedParams.id;
+    const communityId = id;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
     const cursor = parseInt(searchParams.get('cursor') || '0');

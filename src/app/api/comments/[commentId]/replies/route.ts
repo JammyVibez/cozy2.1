@@ -1,12 +1,12 @@
-import { GET as getReplies } from './GET';
-import { POST as postReply } from './POST';
+import { GET as GetHandler } from './GET';
+import { POST as PostHandler } from './POST';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
   const resolvedParams = await params;
-  return getReplies(request, { params: resolvedParams });
+  return GetHandler(request, { params: resolvedParams });
 }
 
 export async function POST(
@@ -14,5 +14,5 @@ export async function POST(
   { params }: { params: Promise<{ commentId: string }> }
 ) {
   const resolvedParams = await params;
-  return postReply(request, { params: resolvedParams });
+  return PostHandler(request, { params: resolvedParams });
 }

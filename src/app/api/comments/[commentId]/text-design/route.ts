@@ -70,3 +70,59 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to fetch text design' }, { status: 500 });
   }
 }
+
+// PATCH - Update text design for a specific comment
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ commentId: string }> }
+) {
+  const { commentId } = await params;
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const updatedData = body.styles;
+    const updatedIframeUrl = body.iframeUrl;
+
+    const commentIdNum = parseInt(commentId);
+
+    // Prepare the data to be updated
+    const updatePayload: any = {
+      fontFamily: updatedData.fontFamily,
+      fontSize: updatedData.fontSize,
+      fontWeight: updatedData.fontWeight,
+      color: updatedData.color,
+      backgroundColor: updatedData.backgroundColor,
+      border: updatedData.border,
+      borderRadius: updatedData.borderRadius,
+      padding: updatedData.padding,
+      margin: updatedData.margin,
+      textAlign: updatedData.textAlign,
+      textShadow: updatedData.textShadow,
+      boxShadow: updatedData.boxShadow,
+      gradient: updatedData.background, // Assuming 'background' in body maps to 'gradient' in schema
+      animation: updatedData.animation,
+      customCSS: updatedData.customCSS ? JSON.stringify(updatedData.customCSS) : null,
+    };
+
+    const textDesign = await prisma.commentTextDesign.update({
+      where: { commentId: commentIdNum },
+      data: updatePayload,
+    });
+
+    await prisma.comment.update({
+      where: { id: commentIdNum },
+      data: {
+        iframeUrl: updatedIframeUrl,
+      },
+    });
+
+    return NextResponse.json({ message: 'Text design updated successfully', textDesign });
+  } catch (error) {
+    console.error('Error updating comment text design:', error);
+    return NextResponse.json({ error: 'Failed to update text design' }, { status: 500 });
+  }
+}

@@ -4,15 +4,16 @@ import prisma from '@/lib/prisma/prisma';
 
 async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const communityId = params.id;
+    const communityId = id;
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const upcoming = searchParams.get('upcoming') === 'true';
@@ -69,15 +70,16 @@ async function GET(
 
 async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const communityId = params.id;
+    const communityId = id;
     const userId = session.user.id;
 
     // Check if user is a member with permission to create events

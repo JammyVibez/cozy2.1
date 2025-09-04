@@ -1,11 +1,12 @@
 import { useUpdateProfileAndCoverPhoto } from '@/hooks/useUpdateProfileAndCoverPhoto';
 import { PATCH as PatchHandler } from './PATCH';
 
-export async function POST(request: Request, { params }: { params: { userId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params;
   return useUpdateProfileAndCoverPhoto({
     request,
     toUpdate: 'profilePhoto',
-    userIdParam: params.userId,
+    userIdParam: userId,
   });
 }
 
