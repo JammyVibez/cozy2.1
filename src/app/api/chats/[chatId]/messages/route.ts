@@ -3,17 +3,14 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma/prisma';
 import { pusherServer } from '@/lib/pusher/pusherClient';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { chatId: string } }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ chatId: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { chatId } = params;
+    const { chatId } = await params;
 
     // Verify user is participant in this chat
     const chat = await prisma.chat.findFirst({
