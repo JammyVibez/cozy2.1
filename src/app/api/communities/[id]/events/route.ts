@@ -150,4 +150,18 @@ async function POST(
   }
 }
 
+<<<<<<< HEAD
 export { GET, POST };
+=======
+<<<<<<< HEAD
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const resolvedParams = await params;
+  return POST(request as any, { params: resolvedParams });
+}
+=======
+export { GET, POST };
+>>>>>>> d035233 (Recovered repo after re-init)
+>>>>>>> f337386 (Fix chat messages route params type)

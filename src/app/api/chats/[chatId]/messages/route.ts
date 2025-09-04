@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma/prisma';
@@ -50,7 +51,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chat
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { chatId: string } }
+  { params }: { params: Promise<{ chatId: string }> }
 ) {
   try {
     const session = await auth();
@@ -58,7 +59,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { chatId } = params;
+    const { chatId } = await params;
     const { content } = await request.json();
 
     if (!content?.trim()) {
