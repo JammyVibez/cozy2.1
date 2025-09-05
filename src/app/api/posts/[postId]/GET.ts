@@ -10,13 +10,14 @@ import { toGetPost } from '@/lib/prisma/toGetPost';
 import { NextResponse } from 'next/server';
 import { GetPost } from '@/types/definitions';
 
-export async function GET(request: Request, { params: resolvedParams }: { params: { postId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ postId: string }> }) {
   /**
    * The [user] will only be used to check whether the
    * user requesting the Post has like it or not.
    */
   const [user] = await getServerUser();
-  const postId = parseInt(resolvedParams.postId, 10);
+  const { postId: postIdString } = await params;
+  const postId = parseInt(postIdString, 10);
   const res = await prisma.post.findUnique({
     where: {
       id: postId,

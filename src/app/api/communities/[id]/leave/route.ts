@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma/prisma';
 
 async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;

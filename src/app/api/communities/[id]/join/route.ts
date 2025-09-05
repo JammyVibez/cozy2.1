@@ -75,5 +75,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return postJoin(request, { params: { id } });
+  // The request parameter should also be of type NextRequest to match the postJoin function signature.
+  // However, the original code used `request: Request`.
+  // To fix this without introducing new unintended changes, we'll cast it.
+  // In a real-world scenario, it would be better to change the signature of POST to accept NextRequest directly.
+  return postJoin(request as NextRequest, { params: { id } });
 }
