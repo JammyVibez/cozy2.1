@@ -16,11 +16,11 @@ import { GetComment } from '@/types/definitions';
 import { z } from 'zod';
 
 export async function POST(request: Request, { params }: { params: Promise<{ commentId: string }> }) {
+  const resolvedParams = await params;
   const [user] = await getServerUser();
   if (!user) return NextResponse.json({}, { status: 401 });
   const userId = user.id;
-  const { commentId: commentIdParam } = await params;
-  const commentId = parseInt(commentIdParam, 10);
+  const commentId = parseInt(resolvedParams.commentId, 10);
 
   try {
     const body = await request.json();

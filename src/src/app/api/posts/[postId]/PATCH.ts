@@ -5,8 +5,8 @@
 import { serverWritePost } from '@/hooks/serverWritePost';
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ postId: string }> }) {
-  const { postId: postIdParam } = await params;
-  const postId = parseInt(postIdParam, 10);
+  const resolvedParams = await params;
+  const postId = parseInt(resolvedParams.postId, 10);
 
   const formData = await request.formData();
   return serverWritePost({

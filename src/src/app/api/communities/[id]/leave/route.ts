@@ -6,13 +6,13 @@ async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params;
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const communityId = resolvedParams.id;
+  const communityId = id;
   const userId = session.user.id;
 
   // Check if user is a member

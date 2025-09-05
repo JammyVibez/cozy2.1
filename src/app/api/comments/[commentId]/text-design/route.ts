@@ -113,12 +113,8 @@ export async function PATCH(
       data: updatePayload,
     });
 
-    await prisma.comment.update({
-      where: { id: commentIdNum },
-      data: {
-        iframeUrl: updatedIframeUrl,
-      },
-    });
+    // Note: iframeUrl field doesn't exist on Comment model
+    // If you need to store iframe URLs, add this field to your Prisma schema first
 
     return NextResponse.json({ message: 'Text design updated successfully', textDesign });
   } catch (error) {

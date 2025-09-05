@@ -16,11 +16,11 @@ import { convertMentionUsernamesToIds } from '@/lib/convertMentionUsernamesToIds
 import { mentionsActivityLogger } from '@/lib/mentionsActivityLogger';
 
 export async function POST(request: Request, { params }: { params: Promise<{ postId: string }> }) {
+  const resolvedParams = await params;
   const [user] = await getServerUser();
   if (!user) return NextResponse.json({}, { status: 401 });
   const userId = user.id;
-  const { postId: postIdParam } = await params;
-  const postId = parseInt(postIdParam, 10);
+  const postId = parseInt(resolvedParams.postId, 10);
 
   try {
     const body = await request.json();

@@ -10,7 +10,8 @@ export async function GET(request: Request, { params }: { params: { userId: stri
   // is following the user being rquested.
   const [user] = await getServerUser();
 
-  const { userId } = params;
+  const resolvedParams = await Promise.resolve(params);
+  const userId = parseInt(resolvedParams.userId, 10);
   const res: FindUserResult | null = await prisma.user.findFirst({
     where: {
       id: userId,

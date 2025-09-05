@@ -1,18 +1,11 @@
-import { GET } from './GET';
-import { POST } from './POST';
+import { GET as GetHandler } from './GET';
+import { POST as PostHandler } from './POST';
+import { NextRequest } from 'next/server';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ postId: string }> }
-) {
-  const resolvedParams = await params;
-  return GET(request, { params: resolvedParams });
+export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+  return GetHandler(request, { params });
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ postId: string }> }
-) {
-  const resolvedParams = await params;
-  return POST(request, { params: resolvedParams });
+export async function POST(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+  return PostHandler(request, { params });
 }

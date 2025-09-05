@@ -9,8 +9,8 @@ import { deleteObject } from '@/lib/s3/deleteObject';
 import { verifyAccessToPost } from './verifyAccessToPost';
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ postId: string }> }) {
-  const { postId: postIdParam } = await params;
-  const postId = parseInt(postIdParam, 10);
+  const resolvedParams = await params;
+  const postId = parseInt(resolvedParams.postId, 10);
   if (!verifyAccessToPost(postId)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }

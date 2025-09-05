@@ -17,12 +17,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ comm
    */
   const [user] = await getServerUser();
   const userId = user?.id;
-  
-  const { commentId } = await params;
+
+  const resolvedParams = await params;
+  const commentId = parseInt(resolvedParams.commentId, 10);
 
   const res: FindCommentResult[] = await prisma.comment.findMany({
     where: {
-      parentId: parseInt(commentId, 10),
+      parentId: commentId,
     },
     include: includeToComment(userId),
     orderBy: {

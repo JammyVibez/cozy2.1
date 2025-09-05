@@ -16,11 +16,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ post
    */
   const [user] = await getServerUser();
   const userId = user?.id;
-  const { postId } = await params;
+  const resolvedParams = await params;
 
   const res: FindCommentResult[] = await prisma.comment.findMany({
     where: {
-      postId: parseInt(postId, 10),
+      postId: parseInt(resolvedParams.postId, 10),
       parentId: null,
     },
     include: includeToComment(userId),

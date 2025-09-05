@@ -4,17 +4,18 @@ import prisma from '@/lib/prisma/prisma';
 // GET /api/users/[userId]/cosmetics - Get user's cosmetics
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params;
+    // Await the promise to get params
+    const { userId } = await params;
 
     const userCosmetics = await prisma.userCosmetic.findMany({
       where: { userId },
       include: {
-        cosmetic: true
+        cosmetic: true,
       },
-      orderBy: { appliedAt: 'desc' }
+      orderBy: { appliedAt: 'desc' },
     });
 
     return NextResponse.json({ cosmetics: userCosmetics });
