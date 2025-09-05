@@ -1,14 +1,14 @@
-import { GET } from './GET';
-import { DELETE } from './DELETE';
-import { PATCH } from './PATCH';
+import { GET as GetHandler } from './GET';
+import { DELETE as DeleteHandler } from './DELETE';
+import { PATCH as PatchHandler } from './PATCH';
+import { NextRequest } from 'next/server';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = await params;
-    return GET(request, { params: { postId } });
+    return GetHandler(request, { params });
   } catch (error) {
     console.error('Error in GET handler:', error);
     return new Response(JSON.stringify({ message: 'Internal Server Error' }), {
@@ -19,12 +19,11 @@ export async function GET(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = await params;
-    return DELETE(request, { params: { postId } });
+    return DeleteHandler(request, { params });
   } catch (error) {
     console.error('Error in DELETE handler:', error);
     return new Response(JSON.stringify({ message: 'Internal Server Error' }), {
@@ -35,12 +34,11 @@ export async function DELETE(
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = await params;
-    return PATCH(request, { params: { postId } });
+    return PatchHandler(request, { params });
   } catch (error) {
     console.error('Error in PATCH handler:', error);
     return new Response(JSON.stringify({ message: 'Internal Server Error' }), {

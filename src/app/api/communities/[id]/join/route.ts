@@ -71,13 +71,10 @@ async function postJoin(
 
 // Updated POST handler to correctly handle Next.js 15 params types
 export async function POST(
-  request: Request,
+  request: NextRequest, // Changed from Request to NextRequest
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  // The request parameter should also be of type NextRequest to match the postJoin function signature.
-  // However, the original code used `request: Request`.
-  // To fix this without introducing new unintended changes, we'll cast it.
-  // In a real-world scenario, it would be better to change the signature of POST to accept NextRequest directly.
-  return postJoin(request as NextRequest, { params: { id } });
-}
+  // Pass the request directly as it's now of the correct type NextRequest
+  return postJoin(request, { params: { id } });
+} s
