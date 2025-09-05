@@ -136,11 +136,22 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
     (provider: 'github' | 'google' | 'facebook') => async () => {
       setLoading((prev) => ({ ...prev, [provider]: true }));
 
-      const signInResult: SignInResponse | undefined = await signIn(provider, { callbackUrl });
+      try {
+        const signInResult = await signIn(provider, { callbackUrl });
 
-      setLoading((prev) => ({ ...prev, [provider]: false }));
+        setLoading((prev) => ({
+          ...prev,
+          [provider]: false,
+        }));
 
-      if (signInResult?.error) {
+        if (signInResult && typeof signInResult === 'object' && 'error' in signInResult && signInResult.error) {
+          showToast({ type: 'error', title: 'Something went wrong' });
+        }
+      } catch (error) {
+        setLoading((prev) => ({
+          ...prev,
+          [provider]: false,
+        }));
         showToast({ type: 'error', title: 'Something went wrong' });
       }
     },
