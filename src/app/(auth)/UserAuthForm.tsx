@@ -137,16 +137,12 @@ export function UserAuthForm({ mode }: { mode: 'login' | 'register' }) {
       setLoading((prev) => ({ ...prev, [provider]: true }));
 
       try {
-        const signInResult = await signIn(provider, { callbackUrl });
-
+        await signIn(provider, { callbackUrl });
+        // OAuth providers redirect, so we won't reach this point on success
         setLoading((prev) => ({
           ...prev,
           [provider]: false,
         }));
-
-        if (signInResult && typeof signInResult === 'object' && 'error' in signInResult && signInResult.error) {
-          showToast({ type: 'error', title: 'Something went wrong' });
-        }
       } catch (error) {
         setLoading((prev) => ({
           ...prev,
