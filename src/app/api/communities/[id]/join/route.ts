@@ -77,4 +77,4 @@ export async function POST(
   const { id } = await params;
   // Pass the request directly as it's now of the correct type NextRequest
   return postJoin(request, { params: { id } });
-} s
+} 
