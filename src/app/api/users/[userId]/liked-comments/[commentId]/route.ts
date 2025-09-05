@@ -4,5 +4,6 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ userId: string; commentId: string }> }
 ) {
-  return deleteLikedComment(request, { params });
+  const resolvedParams = await params;
+  return deleteLikedComment(request, { params: resolvedParams });
 }
