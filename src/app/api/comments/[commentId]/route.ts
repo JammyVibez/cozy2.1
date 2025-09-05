@@ -1,18 +1,17 @@
 import { DELETE as DeleteHandler } from './DELETE';
 import { PUT as PutHandler } from './PUT';
+import { NextRequest } from 'next/server';
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
-  const resolvedParams = await params;
-  return DeleteHandler(request, { params: resolvedParams });
+  return DeleteHandler(request, { params });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
-  const resolvedParams = await params;
-  return PutHandler(request, { params: resolvedParams });
+  return PutHandler(request, { params });
 }
