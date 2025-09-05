@@ -1,7 +1,11 @@
 import { useUpdateProfileAndCoverPhoto } from '@/hooks/useUpdateProfileAndCoverPhoto';
 import { PATCH as PatchHandler } from './PATCH';
+import { NextRequest } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: Promise<{ userId: string }> }) {
+export async function POST(
+  request: NextRequest, // ✅ use NextRequest for consistency
+  { params }: { params: Promise<{ userId: string }> }
+) {
   const { userId } = await params;
   return useUpdateProfileAndCoverPhoto({
     request,
@@ -11,7 +15,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ use
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest, // ✅ match PATCH.ts
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const resolvedParams = await params;
