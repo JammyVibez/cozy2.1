@@ -1,9 +1,10 @@
+// route.ts
 import { NextRequest } from 'next/server';
 import { useUpdateProfileAndCoverPhoto } from '@/hooks/useUpdateProfileAndCoverPhoto';
 import { PATCH as PatchHandler } from './PATCH';
 
 export async function POST(
-  request: NextRequest, // ✅ Fix: use NextRequest instead of Request
+  request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
@@ -16,9 +17,10 @@ export async function POST(
 }
 
 export async function PATCH(
-  request: NextRequest, // ✅ Fix: must match PatchHandler
+  request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolvedParams = await params;
-  return PatchHandler(request, { params: resolvedParams });
+  // ❌ don’t do: const resolvedParams = await params;
+  // ✅ just forward the promise
+  return PatchHandler(request, { params });
 }
