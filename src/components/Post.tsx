@@ -11,6 +11,7 @@ import { isEqual } from 'lodash';
 import SvgHeart from '@/svg_components/Heart';
 import { useQuery } from '@tanstack/react-query';
 import { usePostLikesMutations } from '@/hooks/mutations/usePostLikesMutations';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
 import { ToggleStepper } from './ui/ToggleStepper';
 import { Comments } from './Comments';
 import { PostVisualMediaContainer } from './PostVisualMediaContainer';
@@ -33,6 +34,8 @@ export const Post = memo(
     const { likeMutation, unLikeMutation } = usePostLikesMutations({ postId });
     const { openModal, Modal } = useTextDesignModal();
     const [textDesign, setTextDesign] = useState<any>(null);
+    const { theme } = useEnhancedTheme();
+    const { variant, actualMode } = theme;
 
     const { data, isPending, isError } = useQuery<GetPost>({
       queryKey: ['posts', postId],
@@ -120,7 +123,15 @@ export const Post = memo(
     const numberOfLikes = _count.postLikes;
 
     return (
-      <div className="rounded-2xl bg-card px-4 shadow sm:px-8">
+      <div 
+        className={cn(
+          "rounded-2xl px-4 shadow-lg sm:px-8 transition-all duration-200",
+          "bg-card border border-border/40 backdrop-blur-sm",
+          `theme-${variant}`,
+          actualMode
+        )}
+        data-theme={variant}
+      >
         <div className="flex items-center justify-between pt-4 sm:pt-5">
           <ProfileBlock
             name={author.name!}
@@ -153,9 +164,15 @@ export const Post = memo(
                 <div className="mb-4">
                   <iframe
                     src={textDesign.iframeUrl}
-                    className="w-full h-32 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    className={cn(
+                      "w-full h-32 rounded-lg transition-all duration-200",
+                      "border border-border/60 bg-muted/20",
+                      `theme-${variant}-iframe`,
+                      actualMode === 'dark' ? 'dark-iframe' : 'light-iframe'
+                    )}
                     sandbox="allow-scripts allow-same-origin"
                     title="Post Design"
+                    data-theme={variant}
                   />
                 </div>
               ) : null}

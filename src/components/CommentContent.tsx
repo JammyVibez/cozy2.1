@@ -3,6 +3,7 @@ import { cn } from '@/lib/cn';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
 import { HighlightedMentionsAndHashTags } from './HighlightedMentionsAndHashTags';
 import { useTextDesignModal } from './TextDesignModal';
 
@@ -27,6 +28,8 @@ export function CommentContent({
   const { openModal, Modal } = useTextDesignModal();
   const [textDesign, setTextDesign] = useState<any>(null);
   const isOwnComment = session?.user?.id === userId;
+  const { theme } = useEnhancedTheme();
+  const { variant, actualMode } = theme;
 
   // Fetch text design for this comment
   useEffect(() => {
@@ -77,15 +80,24 @@ export function CommentContent({
       <p className="text-muted-foreground">@{username}</p>
       <div
         className={cn(
-          'my-2 rounded-[32px] rounded-ss-none px-6 py-3',
-          !shouldHighlight ? 'border border-input' : 'ring-2 ring-primary',
-        )}>
+          'my-2 rounded-[32px] rounded-ss-none px-6 py-3 transition-all duration-200',
+          'bg-muted/30 backdrop-blur-sm border border-border/40',
+          !shouldHighlight ? 'border-border/40' : 'ring-2 ring-primary ring-opacity-50',
+          `theme-${variant}-comment`,
+          actualMode
+        )}
+        data-theme={variant}
+      >
         {/* Text Design Button for Comment Owner */}
         {isOwnComment && (
           <div className="mb-2 flex justify-end">
             <button
               onClick={openTextDesigner}
-              className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors flex items-center gap-1"
+              className={cn(
+                "text-xs px-2 py-1 rounded-full transition-colors flex items-center gap-1",
+                "bg-accent/60 text-accent-foreground hover:bg-accent/80",
+                `theme-${variant}-button`
+              )}
             >
               🎨 Design
             </button>
@@ -101,9 +113,14 @@ export function CommentContent({
             <div className="mb-2">
               <iframe
                 src={textDesign.iframeUrl}
-                className="w-full h-20 border border-gray-200 dark:border-gray-700 rounded"
+                className={cn(
+                  "w-full h-20 rounded border border-border/60 bg-background/20",
+                  `theme-${variant}-iframe`,
+                  actualMode === 'dark' ? 'dark-iframe' : 'light-iframe'
+                )}
                 sandbox="allow-scripts allow-same-origin"
                 title="Comment Design"
+                data-theme={variant}
               />
             </div>
           ) : null}

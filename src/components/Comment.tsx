@@ -12,6 +12,8 @@ import { useCreateCommentMutations } from '@/hooks/mutations/useCreateCommentMut
 import { useUpdateDeleteComments } from '@/hooks/useUpdateDeleteComments';
 import { useLikeUnlikeComments } from '@/hooks/useLikeUnlikeComments';
 import { QueryKey } from '@tanstack/react-query';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
+import { cn } from '@/lib/cn';
 import { ProfilePhoto } from './ui/ProfilePhoto';
 import { ButtonNaked } from './ui/ButtonNaked';
 import { DropdownMenuButton } from './ui/DropdownMenuButton';
@@ -43,6 +45,8 @@ export const Comment = memo(
     const { createReplyMutation } = useCreateCommentMutations();
     const { handleEdit, handleDelete } = useUpdateDeleteComments({ queryKey });
     const { likeComment, unLikeComment } = useLikeUnlikeComments({ queryKey });
+    const { theme } = useEnhancedTheme();
+    const { variant, actualMode } = theme;
 
     const searchParams = useSearchParams();
     // Highlight comment if the `commentId` is equal to the `comment-id` search param
@@ -95,12 +99,21 @@ export const Comment = memo(
     }, []);
 
     return (
-      <div className="flex gap-4">
+      <div 
+        className={cn(
+          "flex gap-4 p-3 rounded-lg transition-all duration-200",
+          "bg-card border border-border/40",
+          shouldHighlight && "ring-2 ring-primary ring-opacity-50",
+          `theme-${variant}`,
+          actualMode
+        )}
+        data-theme={variant}
+      >
         <div className="h-10 w-10 flex-shrink-0">
           <ProfilePhoto name={author.name} username={author.username} photoUrl={author.profilePhoto} />
         </div>
 
-        <div>
+        <div className="flex-1">
           <CommentContent
             commentId={commentId}
             name={author.name}
@@ -111,7 +124,7 @@ export const Comment = memo(
             shouldHighlight={shouldHighlight}
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <ToggleStepper isSelected={isLiked} onChange={handleLikeToggle} Icon={SvgHeart} quantity={numberOfLikes} />
             <Button
               onPress={handleCreateReply}
@@ -137,7 +150,11 @@ export const Comment = memo(
           {numberOfReplies !== 0 && (
             <ButtonNaked
               onPress={toggleReplies}
-              className="my-1 cursor-pointer text-sm font-semibold text-muted-foreground hover:text-muted-foreground/70">
+              className={cn(
+                "my-1 cursor-pointer text-sm font-semibold transition-colors",
+                "text-muted-foreground hover:text-foreground",
+                `theme-${variant}-text`
+              )}>
               {!repliesShown ? `Show ${numberOfReplies} replies...` : 'Hide replies'}
             </ButtonNaked>
           )}
