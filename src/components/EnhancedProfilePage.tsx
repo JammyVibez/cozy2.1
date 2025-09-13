@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/cn';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
 import Button from '@/components/ui/Button';
 import { QuickThemeToggle } from '@/components/AdvancedThemeSwitch';
 import { 
@@ -54,6 +55,8 @@ interface EnhancedProfilePageProps {
 
 export function EnhancedProfilePage({ user, stats, isOwnProfile }: EnhancedProfilePageProps) {
   const { data: session } = useSession();
+  const { theme } = useEnhancedTheme();
+  const { variant, actualMode } = theme;
   const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes'>('posts');
   const [isFollowing, setIsFollowing] = useState(user.isFollowing || false);
 
@@ -84,7 +87,15 @@ export function EnhancedProfilePage({ user, stats, isOwnProfile }: EnhancedProfi
   return (
     <CosmeticProvider userId={user.id}>
       <ThemeInjector />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div 
+        className={cn(
+          "min-h-screen transition-all duration-200",
+          "bg-gradient-to-b from-background/50 to-muted/30",
+          `theme-${variant}-profile`,
+          actualMode
+        )}
+        data-theme={variant}
+      >
         {/* Cover Photo Section */}
         <div className="relative h-64 md:h-80 overflow-hidden">
           <CosmeticBanner 

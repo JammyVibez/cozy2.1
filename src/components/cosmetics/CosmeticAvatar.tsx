@@ -1,6 +1,7 @@
 'use client';
 
 import { useCosmetics } from './CosmeticProvider';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
 import { cn } from '@/lib/cn';
 
 interface CosmeticAvatarProps {
@@ -19,15 +20,29 @@ const sizeClasses = {
 
 export function CosmeticAvatar({ src, alt, size = 'md', className }: CosmeticAvatarProps) {
   const { getActiveCosmetic } = useCosmetics();
+  const { theme } = useEnhancedTheme();
+  const { variant, actualMode } = theme;
   const activeFrame = getActiveCosmetic('PFP_FRAME');
 
   return (
-    <div className={cn('relative', sizeClasses[size], className)}>
+    <div 
+      className={cn(
+        'relative transition-all duration-200',
+        sizeClasses[size],
+        `theme-${variant}-avatar`,
+        actualMode,
+        className
+      )}
+      data-theme={variant}
+    >
       {/* Avatar Image */}
       <img
         src={src}
         alt={alt}
-        className="w-full h-full rounded-full object-cover"
+        className={cn(
+          "w-full h-full rounded-full object-cover transition-all duration-200",
+          `theme-${variant}-avatar-image`
+        )}
       />
       
       {/* PFP Frame Overlay */}

@@ -1,25 +1,25 @@
-import { CommunityDiscovery } from '@/components/CommunityDiscovery';
-import { CreateCommunityButton } from '@/components/CreateCommunityButton';
+import { ComingSoon } from '@/components/ComingSoon';
 
 export const metadata = {
-  title: 'Communities - Discover Your Tribe',
-  description: 'Find and join communities that match your interests on Cozy',
+  title: 'Communities - Coming Soon',
+  description: 'Advanced community features are being developed',
 };
 
 export default function CommunitiesPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Discover Communities</h1>
-          <p className="mt-2 text-muted-foreground">
-            Find your tribe and connect with people who share your passions
-          </p>
-        </div>
-        <CreateCommunityButton />
-      </div>
-      
-      <CommunityDiscovery />
-    </div>
+    <ComingSoon
+      title="Community Features Coming Soon"
+      description="We're building amazing community features that will transform how you connect and collaborate with others who share your interests."
+      features={[
+        "Real-time Community Chat Rooms",
+        "Advanced Community Moderation Tools", 
+        "Community Events & Scheduling",
+        "File Sharing & Media Galleries",
+        "Voice & Video Chat Integration",
+        "Custom Community Themes",
+        "Community Analytics Dashboard",
+        "Cross-Platform Notifications"
+      ]}
+    />
   );
 }

@@ -3,6 +3,7 @@ import { Play } from '@/svg_components';
 import { VisualMediaType } from '@prisma/client';
 import { useMemo } from 'react';
 import { mergeProps, useFocusRing, usePress } from 'react-aria';
+import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
 
 export function PostVisualMedia({
   type,
@@ -21,6 +22,8 @@ export function PostVisualMedia({
     onPress: onClick,
   });
   const { focusProps, isFocusVisible } = useFocusRing();
+  const { theme } = useEnhancedTheme();
+  const { variant, actualMode } = theme;
   const style = useMemo(() => ({ height }), [height]);
   return (
     <div
@@ -28,10 +31,14 @@ export function PostVisualMedia({
       role="button"
       tabIndex={0}
       className={cn(
-        'group relative cursor-pointer focus:outline-none',
+        'group relative cursor-pointer focus:outline-none transition-all duration-200',
+        'border border-border/20 rounded-lg overflow-hidden',
         colSpan === 1 ? 'col-span-1' : 'col-span-2',
-        isFocusVisible && 'border-4 border-violet-500',
+        isFocusVisible && 'border-4 border-primary',
+        `theme-${variant}-media`,
+        actualMode
       )}
+      data-theme={variant}
       style={style}>
       {type === 'PHOTO' ? (
         <img src={url} alt="" className={cn('h-full w-full object-cover', isPressed && 'brightness-75')} />
