@@ -5,6 +5,7 @@ import { DialogsContextProvider } from '@/contexts/DialogsContext';
 import { ReactQueryProvider } from '@/contexts/ReactQueryProvider';
 import { ShouldAnimateContextProvider } from '@/contexts/ShouldAnimateContext';
 import { ThemeContextProvider } from '@/contexts/ThemeContext';
+import { EnhancedThemeProvider } from '@/contexts/EnhancedThemeContext';
 import { ToastContextProvider } from '@/contexts/ToastContext';
 import { VisualMediaModalContextProvider } from '@/contexts/VisualMediaModalContext';
 import { SessionProvider } from 'next-auth/react';
@@ -14,8 +15,9 @@ import React from 'react';
 export function Providers({ children, session }: { children: React.ReactNode; session: Session | null }) {
   return (
     <ThemeContextProvider>
-      <ToastContextProvider>
-        <ReactQueryProvider>
+      <EnhancedThemeProvider>
+        <ToastContextProvider>
+          <ReactQueryProvider>
           <SessionProvider session={session}>
             <DialogsContextProvider>
               <VisualMediaModalContextProvider>
@@ -27,6 +29,7 @@ export function Providers({ children, session }: { children: React.ReactNode; se
           </SessionProvider>
         </ReactQueryProvider>
       </ToastContextProvider>
+      </EnhancedThemeProvider>
     </ThemeContextProvider>
   );
 }

@@ -6,6 +6,7 @@ import { useNotificationsCountQuery } from '@/hooks/queries/useNotificationsCoun
 import Link from 'next/link';
 import { LogoText } from './LogoText';
 import { MenuBarItem } from './MenuBarItem';
+import { ThemeSelector } from './ThemeSelector';
 
 export function MenuBar() {
   const [user] = useSessionUserData();
@@ -52,6 +53,11 @@ export function MenuBar() {
           {item.title}
         </MenuBarItem>
       ))}
+      
+      {/* Theme Selector */}
+      <div className="mt-auto pt-4 hidden md:block">
+        <ThemeSelector />
+      </div>
     </div>
   );
 }

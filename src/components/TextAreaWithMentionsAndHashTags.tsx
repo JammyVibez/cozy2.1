@@ -41,7 +41,7 @@ export function TextAreaWithMentionsAndHashTags({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { inputProps, labelProps, errorMessageProps } = useTextField(
-    { ...rest, inputElementType: 'textarea', label: placeholder },
+    { ...rest, inputElementType: 'textarea', label: placeholder } as any,
     textareaRef,
   );
   const { errorMessage } = rest;
