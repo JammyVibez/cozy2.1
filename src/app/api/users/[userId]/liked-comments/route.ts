@@ -4,6 +4,6 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolvedParams = await params;
-  return PostHandler(request, { params: resolvedParams });
+  const resolved = await params;
+  return PostHandler(request, { params: resolved });
 }

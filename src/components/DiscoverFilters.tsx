@@ -60,7 +60,7 @@ export function DiscoverFilters() {
         <Select
           label="Filter by Gender"
           selectedKey={toUpper(snakeCase(filters.gender)) || null}
-          onSelectionChange={onSelectGender}>
+          onSelectionChange={(key) => onSelectGender(key as Key)}>
           {genderFilters.map((gender) => (
             <Item key={gender}>{startCase(lowerCase(gender))}</Item>
           ))}
@@ -70,7 +70,7 @@ export function DiscoverFilters() {
         <Select
           label="Filter by Status"
           selectedKey={toUpper(snakeCase(filters.relationshipStatus)) || null}
-          onSelectionChange={onSelectRelationshipStatus}>
+          onSelectionChange={(key) => onSelectRelationshipStatus(key as Key)}>
           {relationshipStatusFilters.map((relationship) => (
             <Item key={relationship}>{startCase(lowerCase(relationship))}</Item>
           ))}

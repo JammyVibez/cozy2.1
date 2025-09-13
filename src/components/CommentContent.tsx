@@ -10,6 +10,7 @@ export function CommentContent({
   commentId,
   name,
   username,
+  userId,
   content,
   createdAt,
   shouldHighlight,
@@ -17,6 +18,7 @@ export function CommentContent({
   commentId: number;
   name: string | null;
   username: string | null;
+  userId: string;
   content: string;
   createdAt: string | Date;
   shouldHighlight?: boolean;
@@ -24,7 +26,7 @@ export function CommentContent({
   const { data: session } = useSession();
   const { openModal, Modal } = useTextDesignModal();
   const [textDesign, setTextDesign] = useState<any>(null);
-  const isOwnComment = session?.user?.username === username;
+  const isOwnComment = session?.user?.id === userId;
 
   // Fetch text design for this comment
   useEffect(() => {

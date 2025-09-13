@@ -5,14 +5,16 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  return GetHandler(request, { params });
+  const resolved = await params;
+  return GetHandler(request, { params: resolved });
 }
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  return PatchHandler(request, { params });
+  const resolved = await params;
+  return PatchHandler(request, { params: resolved });
 }
 
 // Assuming GET and PATCH are defined in separate files and exported as above.

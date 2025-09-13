@@ -105,6 +105,7 @@ export const Comment = memo(
             commentId={commentId}
             name={author.name}
             username={author.username}
+            userId={author.id}
             content={content}
             createdAt={createdAt}
             shouldHighlight={shouldHighlight}

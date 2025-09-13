@@ -18,6 +18,5 @@ export async function PATCH(
   request: NextRequest, // ✅ match PATCH.ts
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolvedParams = await params;
-  return PatchHandler(request, { params: resolvedParams });
+  return PatchHandler(request, { params });
 }

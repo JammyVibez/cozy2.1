@@ -81,20 +81,6 @@ export const Post = memo(
       toggleComments(postId);
     }, [postId, toggleComments]);
 
-    const openTextDesigner = useCallback(() => {
-      if (!content) return;
-      
-      openModal({
-        content,
-        type: 'post',
-        targetId: postId,
-        initialStyles: textDesign?.styles,
-        initialIframeUrl: textDesign?.iframeUrl,
-        onSave: (styles, iframeUrl) => {
-          setTextDesign({ styles, iframeUrl });
-        },
-      });
-    }, [content, openModal, postId, textDesign]);
     const variants = useMemo(
       () => ({
         animate: {
@@ -115,6 +101,21 @@ export const Post = memo(
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { content, createdAt, user: author, visualMedia, isLiked, _count } = data;
+    
+    const openTextDesigner = useCallback(() => {
+      if (!content) return;
+      
+      openModal({
+        content,
+        type: 'post',
+        targetId: postId,
+        initialStyles: textDesign?.styles,
+        initialIframeUrl: textDesign?.iframeUrl,
+        onSave: (styles, iframeUrl) => {
+          setTextDesign({ styles, iframeUrl });
+        },
+      });
+    }, [content, openModal, postId, textDesign]);
     const isOwnPost = userId === author.id;
     const numberOfLikes = _count.postLikes;
 

@@ -5,14 +5,14 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolvedParams = await params;
-  return GetHandler(request, { params: resolvedParams });
+  const resolved = await params;
+  return GetHandler(request, { params: resolved });
 }
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolvedParams = await params;
-  return PostHandler(request, { params: resolvedParams });
+  const resolved = await params;
+  return PostHandler(request, { params: resolved });
 }
