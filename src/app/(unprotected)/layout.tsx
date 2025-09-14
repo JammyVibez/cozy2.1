@@ -24,8 +24,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
           <div className="hidden gap-3 sm:flex">
+            <HomeNavLink href="/help">Help</HomeNavLink>
             <HomeNavLink href="/terms">Terms</HomeNavLink>
-            <HomeNavLink href="/privacy-policy">Privacy Policy</HomeNavLink>
+            <HomeNavLink href="/privacy-policy">Privacy</HomeNavLink>
 
             <HomeNavLink href="/login">Login</HomeNavLink>
             <HomeNavLink href="/register">Sign Up</HomeNavLink>

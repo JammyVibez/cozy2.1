@@ -334,8 +334,103 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Monetization Features */}
+      {/* Developer Ecosystem Section */}
       <div className="py-20 bg-white dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              Built for{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Developers
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              A modular, template-driven platform with a powerful plugin ecosystem. Create custom communities with templates, bots, and extensible imports.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Template Marketplace */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-8 border border-blue-200 dark:border-blue-800"
+            >
+              <div className="text-4xl mb-4">🏗️</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Template Marketplace</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Choose from pre-built templates or create your own. Study groups, gaming clans, dev teams - all with drag-and-drop customization.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                  Study Group
+                </span>
+                <span className="text-xs bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded">
+                  Gaming Clan
+                </span>
+                <span className="text-xs bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                  Dev Team
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Bot Ecosystem */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 border border-purple-200 dark:border-purple-800"
+            >
+              <div className="text-4xl mb-4">🤖</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Bot Marketplace</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Extend communities with powerful bots. Moderation, games, integrations - all with secure permission scopes and sandboxed execution.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                  JS/Python SDK
+                </span>
+                <span className="text-xs bg-pink-200 dark:bg-pink-800 text-pink-800 dark:text-pink-200 px-2 py-1 rounded">
+                  Secure Runtime
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Custom Imports */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-8 border border-green-200 dark:border-green-800"
+            >
+              <div className="text-4xl mb-4">📦</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Custom Imports</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Import custom packages to completely transform your community. Full developer control with safety-first sandboxing.
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                  🔒 Sandboxed
+                </span>
+                <span className="text-sm text-gray-500">Coming Soon</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Monetization Features */}
+      <div className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -362,7 +457,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-2xl p-8 border border-yellow-200 dark:border-yellow-800"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg"
             >
               <div className="text-4xl mb-4">🏆</div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Premium Badges</h3>
@@ -383,7 +478,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 border border-purple-200 dark:border-purple-800"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg"
             >
               <div className="text-4xl mb-4">🎨</div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Custom Themes</h3>
@@ -409,7 +504,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-8 border border-green-200 dark:border-green-800"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg"
             >
               <div className="text-4xl mb-4">💰</div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Tip Creators</h3>
