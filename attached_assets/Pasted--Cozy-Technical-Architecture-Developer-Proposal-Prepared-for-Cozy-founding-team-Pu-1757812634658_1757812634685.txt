@@ -1,0 +1,253 @@
+# Cozy — Technical Architecture & Developer Proposal
+
+**Prepared for:** Cozy founding team
+
+**Purpose:** Present a clear technical architecture, MVP scope, developer responsibilities, and a proposal to recruit and onboard developers to redesign Cozy (web + app), implement the template/import marketplace, build an extensible plugin & bot ecosystem, and deliver a production-ready community platform.
+
+---
+
+## 1. Executive Summary
+
+Cozy is a modular, template-driven community platform that combines the simplicity of pre-built templates with the power of fully custom, developer-extendable imports and a bot/plugin ecosystem. It enables individuals, groups, and organizations to create spaces that look and behave exactly as they want — with templates, a drag-and-drop customizer, or by importing developer packages (JS/Python). Developers can publish plugins and bots to a marketplace that communities can invite and manage.
+
+**Primary goals:**
+
+* Launch an MVP proving templates + customization flows quickly.
+* Build a secure import and plugin runtime for developer extensions (Phase 2).
+* Launch a Bot Marketplace and Plugin API that enable extensibility and monetization.
+
+---
+
+## 2. Product Strategy & Phases
+
+### MVP — Phase 1 (Core launch)
+
+Deliver a delightful, polished product that demonstrates core value quickly.
+
+* Landing page, waitlist, simple marketing.
+* Auth & onboarding (email, OAuth providers).
+* Profiles (avatar, bio, theme).
+* Posts/feed (text + multiple images + status updates), multi-emoji reactions.
+* Communities: create/join, roles (owner/mod/member), basic permissions.
+* Create Community modal: Use Template, Customize Your Own, Import (import stubbed for later).
+* Template Marketplace (Free / Premium tags, install to community, seed content).
+* Community admin console (members, roles, settings).
+* Basic metrics/analytics dashboard.
+
+### Phase 2 — Extensibility (Developer ecosystem)
+
+* Template manifest spec and editor (component-based templates).
+* Plugin API (UI components, server hooks, event webhooks).
+* Import runtime: safely accept verified JS/Python packages; initial approach is manual review + limited sandboxing.
+* Basic real-time features: chat, presence, lightweight media.
+* Bot runtime v1 and Bot Marketplace (developer uploads; admin invites bots; permission scopes).
+
+### Phase 3 — Scale & Advanced
+
+* Fully sandboxed plugin/runtime (WASM or isolated containers).
+* Livestreaming integrations (LiveKit/Mediasoup), media transcoding.
+* Monetization infrastructure for templates/bots (payments, subscription tiers).
+* White-label/Enterprise features (custom domains, SSO, SLAs).
+* Advanced moderation (AI content filtering, human review dashboards).
+
+---
+
+## 3. High-level Architecture Overview
+
+### Frontend (User-facing)
+
+* **Framework:** Next.js (React) with TypeScript for SSR/SEO + client navigation.
+* **Styling:** Tailwind CSS + component library.
+* **State & Data:** React Query / SWR for server state; Zustand for local state.
+* **Realtime:** Socket.IO for chat and presence; WebRTC for livesteam connections (via LiveKit/Mediasoup later).
+* **Editor/UI:** Template editor (drag-and-drop), Community customizer, Bot Marketplace UI.
+* **Build & Deploy:** Vercel/Netlify for frontend; branch preview deployments.
+
+### Backend (Platform)
+
+* **Platform language:** Node.js + TypeScript (NestJS recommended) — aligns with JS plugin support and developer familiarity.
+* **API:** REST or GraphQL (GraphQL recommended for flexible client-driven queries).
+* **Database:** PostgreSQL for relational data, with Prisma ORM.
+* **Cache/Messaging:** Redis for pub/sub, caching, sessions.
+* **Storage:** S3 (AWS) or compatible for media and assets.
+* **Queue & Workers:** BullMQ (Redis) for background jobs (image resizing, import parsing, moderation tasks).
+* **Search:** Typesense or Elasticsearch for fast content and community search.
+* **Media:** Integrate LiveKit or Mediasoup for streaming; use an encoding/transcoding pipeline.
+
+### Runtime & Sandboxing
+
+* **Plugin/Bot runtime:** Initially run vetted developer code in isolated ephemeral containers (e.g., Docker on Fargate) or serverless functions with strict IAM and resource limits.
+* **Long-term sandboxing:** Move to WASM or language-isolated runtimes to reduce risk.
+* **Security:** Strict RBAC and scoped access tokens for plugins/bots; rate-limiting and auditing.
+
+---
+
+## 4. Template & Import System (detailed)
+
+### Template package (v1)
+
+A template is a ZIP package containing:
+
+* `manifest.json` — metadata: name, slug, version, author, type (free/premium), components, seed content, required scopes
+* `components/` — JSON definitions for UI components or serialized component tree
+* `assets/` — images, icons, style variables
+* `seed/` — seed posts, sample members, default channels
+
+Frontend renders templates by mapping manifest component configs to Cozy UI components.
+
+### Importable community packages
+
+* **Accepted formats:** v1 supports ZIP with JS/Python plugin stubs but **do not execute untrusted code by default**.
+* **Staged flow:** Developers upload packages to marketplace as "submitted". Staff or automated checks validate package (lint, dependency checks). Approved packages are signed and can be installed by communities.
+* **Execution model:** When an import requires runtime logic, execute in sandboxed environment with explicit scope consent from community admins.
+
+### Template editor
+
+* Component canvas with draggable components (Channel, Feed, Post Composer, Hero, Rules, Bot Slot).
+* Property panel for each component (styles, permissions, default content).
+* Preview mode and "seed community" deploy option.
+
+---
+
+## 5. Bot System & Bot Marketplace (detailed)
+
+### Core concepts
+
+* **Bot:** A packaged developer extension that can listen to community events and perform actions (send messages, moderate, run games, integrate external APIs).
+* **Bot Marketplace:** Browse, install (invite) bots into a community, grant scopes.
+* **Scopes:** Permission model for bots (e.g., `read:posts`, `write:messages`, `moderate:users`, `manage:channels`). Admins approve scopes during install.
+
+### Bot SDK (JS/Python)
+
+* Provide a small SDK to standardize event hooks and API calls:
+
+  * `onMessage(event)`, `onReaction(event)`, `onCommand(command)`, `onUserJoin(event)`, `onTimer()`
+  * `context.sendMessage(channelId, content)`, `context.deleteMessage(messageId)`, `context.moderate(userId, action)`
+* Bots run in sandboxed runtime with limited memory/CPU and timeouts.
+
+### Bot lifecycle
+
+1. Developer uploads bot package to marketplace with manifest (scopes, endpoints, pricing).
+2. Marketplace verifies and (optionally) tests bot.
+3. Admin browses marketplace and clicks "Add Bot"; a consent modal lists requested scopes.
+4. On approval, bot is provisioned into the community and assigned an installation token. Bot then receives events via runtime and can call Cozy APIs within its scopes.
+
+### Monetization
+
+* Support paid bots: subscription or one-time purchase. Revenue split model with developer.
+* Track usage metrics and billing per community.
+
+---
+
+## 6. Data Model (simplified)
+
+Key entities and essential fields:
+
+* `User { id, email, username, displayName, avatar, bio, settings }`
+* `Community { id, ownerId, name, slug, theme, templateId, settings }`
+* `Membership { userId, communityId, role, joinedAt }`
+* `Template { id, name, authorId, type, manifest, assets }`
+* `Post { id, communityId, authorId, content, media[], reactions[], createdAt }`
+* `Bot { id, authorId, manifest, scopes, pricing, verified }`
+
+---
+
+## 7. Security & Moderation
+
+* **Authentication:** JWT + Refresh tokens; OAuth2 providers; optional SSO for enterprise.
+* **Authorization:** RBAC at community level; scoped tokens for bots/plugins.
+* **Sandboxing:** No untrusted third-party code runs in the main app process. Use isolated execution.
+* **Content moderation:** automated filtering (toxicity models), user reporting, manual review queues, moderator tools, and rate limiting.
+* **Privacy:** GDPR-friendly defaults; per-community privacy settings.
+
+---
+
+## 8. Developer Roles & Responsibilities (proposal)
+
+### Role A — Frontend Lead
+
+* Build SPA/Next.js frontend, template editor, Bot & Template Marketplace UI
+* Implement component library, feed, post composer, reactions
+* Integrate realtime client, preview/deploy flows
+
+### Role B — Backend & Platform Engineer
+
+* Build REST/GraphQL API, auth, DB schemas, and background workers
+* Implement template storage, parsing, import pipeline, bot runtime sandbox, and marketplace backend
+* Integrate media services, realtime socket server, and monitoring
+
+### Optional — Designer / DevOps / QA
+
+* Designer for UI/UX and template design
+* DevOps for infra automation and secure deployment
+* QA for E2E tests and testing the import/runtime
+
+---
+
+## 9. Repo & Workflow Recommendations
+
+* **Monorepo:** Turborepo with packages `web`, `api`, `worker`, `plugins`, `templates`.
+* **CI/CD:** GitHub Actions for linting, test, and deployments. Staging deploys per branch; protected production deploys.
+* **Testing:** Unit tests, Playwright E2E, integration tests for plugin/bot lifecycle.
+* **Infra IaC:** Terraform or Pulumi for infra provisioning.
+
+---
+
+## 10. Proposal Terms (how to pitch to devs)
+
+* **Objective:** Redesign Cozy to support template marketplace, customization, and a bot/plugin ecosystem.
+* **Team:** Founder (product & vision) + Frontend Lead + Backend Lead (+ optional designer/QA).
+* **Deliverables & Milestones:**
+
+  * M1 (4–6 weeks): Repo scaffold, auth, profiles, posts, communities, Create Community flow, basic template installer.
+  * M2 (6–8 weeks): Template editor, marketplace UI, admin console, analytics.
+  * M3 (8–12 weeks): Bot runtime v1, Bot SDK stubs, Bot Marketplace backend, import pipeline (reviewed import process).
+  * M4: Hardening, scalability, monetization hooks, and production launch.
+* **Compensation:** Define per-milestone pay or equity/revenue-share for template/bot marketplace. Include IP assignment and vesting terms.
+* **Communication:** Weekly sprint planning, daily async updates in Slack/Discord, PR reviews, and sprint demos.
+
+---
+
+## 11. Risks & Mitigations
+
+* **Security risk from imports/bots:** mitigation: manual review + sandboxing + strict scopes; phased rollout.
+* **Complexity creep:** mitigation: clear MVP scope and locking Phase 2 until Phase 1 stable.
+* **Performance concerns:** mitigation: use managed infra, autoscale critical services, and monitor performance.
+
+---
+
+## 12. Success Metrics
+
+* Communities created, % using templates, DAU/MAU per community, time-to-first-post, template-to-premium conversion rate, bot installs and revenue.
+
+---
+
+## 13. Appendix: Example Template Manifest
+
+```json
+{
+  "name": "Study Group Starter",
+  "slug": "study-group",
+  "version": "1.0.0",
+  "author": "Cozy Official",
+  "type": "free",
+  "components": [
+    {"type": "channel", "id": "general", "name": "General"},
+    {"type": "channel", "id": "resources", "name": "Resources"}
+  ],
+  "seed_posts": [
+    {"author": "cozy", "content": "Welcome to your study group!"}
+  ]
+}
+```
+
+---
+
+If you'd like, I can now:
+
+* Draft a **pitch email** to send to your developers (include milestones & compensation options).
+* Generate a **detailed template manifest spec** (fields, schema, validations).
+* Produce **Bot SDK stubs** (JS + Python) and example bot package.
+* Create **wireframes** for the Create Community → Template Editor → Bot Marketplace flow.
+
+Tell me which one to add next and I will append it to this document.
