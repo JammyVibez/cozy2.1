@@ -12,7 +12,3 @@ export async function POST(
 export async function GET() {
   return NextResponse.json({ message: 'GET method not implemented yet' }, { status: 501 });
 }
-
-export async function POST() {
-  return NextResponse.json({ message: 'POST method not implemented yet' }, { status: 501 });
-}
