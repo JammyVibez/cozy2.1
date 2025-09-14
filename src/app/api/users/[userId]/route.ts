@@ -5,8 +5,16 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const resolved = await params;
-  return GetHandler(request, { params: resolved });
+  try {
+    const resolved = await params;
+    return GetHandler(request, { params: resolved });
+  } catch (error) {
+    console.error('Error in users API route:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 export async function PATCH(
