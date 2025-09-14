@@ -1,0 +1,79 @@
+1. Hubs (Dynamic Spaces)
+
+Instead of just "groups", Cozy has Hubs.
+
+Each Hub adapts to its theme:
+
+Developer Hub → code snippets, live coding rooms, GitHub integration
+
+Gamer Hub → leaderboard, live Twitch/YouTube integration, match-making
+
+Crypto Hub → live charts, portfolio sharing, market sentiment polls
+
+News Hub → AI-curated feeds, discussions, “fact-check” button from the community
+
+UI feels alive depending on the hub type (e.g., dark neon for gamers, minimal grid for developers).
+
+2. Zones (Layered Communities)
+
+A community isn’t just a flat feed → it has Zones.
+
+Example: In a Gaming community:
+
+🎮 Arcade Zone → memes, fun talk
+
+⚔️ Battle Zone → competitive match coordination
+
+📰 Patch Zone → official updates, pinned news
+
+Each zone has its own vibe and permissions → so communities feel like mini-worlds, not just chatrooms.
+
+3. Cozy Realms (Interest Universes)
+
+Users don’t just join a community, they enter a Realm.
+
+A Realm can host nested micro-communities inside it.
+
+Example:
+
+Crypto Realm → Ethereum, Bitcoin, Memecoins sub-realms
+
+Dev Realm → Web Dev, AI, Blockchain sub-realms
+
+Realms can have cross-connections (e.g., a developer realm linking with a crypto realm for “Web3 Devs”).
+
+4. Pulse Communities (Live-first)
+
+Instead of static feeds, Pulse communities are real-time energy-driven spaces.
+
+Feeds flow like a heartbeat — trending posts rise and fade dynamically (no infinite scroll dead zone).
+
+Great for fast-moving worlds like news, esports, trading.
+
+Posts can expire after 24h unless upvoted/saved → so discussions are always fresh and alive.
+
+5. Persona-based Communities
+
+In certain Cozy communities, users can post using Personas.
+
+Example: In a Crypto Traders community, someone might switch to their "Trader Persona" showing portfolio style, but not real identity.
+
+In Gaming, players could post as their gaming alias/character.
+
+This lets people switch identities per community, making interaction feel more immersive.
+
+6. Interactive Communities
+
+Every community has built-in interactive modules:
+
+Dev → collaborative code editor
+
+Gamer → battle bracket generator
+
+Crypto → shared watchlists, prediction markets
+
+News → quick polls on world events, live community-sourced timelines
+
+No other platform makes interactivity part of the community itself (usually just text + chat).
+
+🚀 With this style, Cozy wouldn’t just be “groups” → it would feel like entering different worlds, each designed for the culture inside it.

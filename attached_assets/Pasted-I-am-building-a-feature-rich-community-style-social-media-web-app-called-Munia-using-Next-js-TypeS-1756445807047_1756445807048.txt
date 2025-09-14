@@ -1,0 +1,95 @@
+I am building a feature-rich, community-style social media web app called Munia using Next.js, TypeScript, React, Prisma, NextAuth, React Query, TailwindCSS, Framer Motion, React Aria, and Zod.
+
+I want you to upgrade and enhance the app with all the following improvements:
+
+Core Social Features
+
+Real-time updates (live chat, typing indicators, live comments, notifications)
+
+Push notifications for messages, mentions, likes
+
+Story-like posts (24h expiring media)
+
+Reactions (laugh, heart, surprise, etc.)
+
+Polls inside posts
+
+Hashtags & trending topics
+
+Media & Content Tools
+
+Support for videos, GIFs, audio (voice notes), and carousels
+
+Post creation tools (filters, cropping, stickers, text overlays)
+
+Feed layout options (grid, list, compact toggle)
+
+Community & Discovery
+
+Explore page with trending posts, hashtags, and categories
+
+User recommendations (people you may know, popular creators)
+
+Follow suggestions during onboarding
+
+Creator Tools & Monetization
+
+Verified accounts (with badges)
+
+Draft & schedule posts
+
+Creator dashboards with analytics (views, likes, comments, follower trends)
+
+Tipping system (integrate Stripe or Paystack)
+
+Privacy, Safety & Moderation
+
+Advanced privacy settings (public, followers-only, private posts)
+
+Content reporting system
+
+Admin/moderator dashboard for managing users and flagged posts
+
+MFA support + secure password reset
+
+Accessibility & Inclusivity
+
+Dark mode & high-contrast themes
+
+Full keyboard navigation & screen reader support
+
+Localization (multi-language support)
+
+Voice-to-text posting option
+
+Performance & Growth
+
+Image/video optimization with Cloudinary (replace AWS S3 entirely)
+
+Offline caching with React Query (PWA-ready)
+
+Make Munia installable as a PWA
+
+Growth loops (invite system, social sharing, referral rewards)
+
+Infrastructure Changes
+
+Replace AWS S3 → Cloudinary for all file and media storage.
+
+Replace AWS SES → Supabase Auth for authentication + email verification and password reset.
+
+If email limits are reached, allow backup SMTP providers (Resend or Brevo).
+
+Keep Prisma as ORM for database models and queries.
+
+Design & Feel
+
+Attractive, community-first design
+
+Engaging animations with Framer Motion (micro-interactions, smooth transitions)
+
+User profile customization (cover photos, avatars, bio, theme color choices)
+
+Social, fun, yet professional look to make it appealing and addictive
+
+⚡ Final Goal: Turn Munia into a community-style, feature-rich, modern social app with high engagement, personalization, and attractive design while being cost-efficient by relying on Supabase Auth + Cloudinary instead of AWS.

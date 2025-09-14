@@ -1,0 +1,68 @@
+[02:32:49.437] Running build in Washington, D.C., USA (East) – iad1
+[02:32:49.437] Build machine configuration: 2 cores, 8 GB
+[02:32:49.452] Cloning github.com/JammyVibez/cozy (Branch: main, Commit: abf2bf6)
+[02:32:49.588] Previous build caches not available
+[02:32:49.754] Cloning completed: 302.000ms
+[02:32:50.087] Running "vercel build"
+[02:32:50.468] Vercel CLI 46.1.0
+[02:32:51.106] Installing dependencies...
+[02:32:54.969] npm warn deprecated q@1.5.1: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+[02:32:54.969] npm warn deprecated
+[02:32:54.970] npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+[02:32:56.498] npm warn deprecated @supabase/auth-helpers-shared@0.7.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[02:32:56.746] npm warn deprecated @supabase/auth-helpers-nextjs@0.10.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[02:32:58.920] npm warn deprecated @humanwhocodes/config-array@0.11.14: Use @eslint/config-array instead
+[02:32:58.939] npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+[02:33:19.300] 
+[02:33:19.301] > munia@0.1.0 postinstall
+[02:33:19.301] > prisma generate
+[02:33:19.301] 
+[02:33:19.751] Prisma schema loaded from prisma/schema.prisma
+[02:33:20.673] 
+[02:33:20.674] ✔ Generated Prisma Client (5.0.0 | library) to ./node_modules/@prisma/client in 429ms
+[02:33:20.674] You can now start using Prisma Client in your code. Reference: https://pris.ly/d/client
+[02:33:20.675] ```
+[02:33:20.675] import { PrismaClient } from '@prisma/client'
+[02:33:20.675] const prisma = new PrismaClient()
+[02:33:20.675] ```
+[02:33:20.742] 
+[02:33:20.743] added 910 packages in 29s
+[02:33:20.743] 
+[02:33:20.744] 206 packages are looking for funding
+[02:33:20.744]   run `npm fund` for details
+[02:33:20.817] Running "npm run build"
+[02:33:20.952] 
+[02:33:20.953] > munia@0.1.0 build
+[02:33:20.953] > next build
+[02:33:20.953] 
+[02:33:21.515] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[02:33:21.515] This information is used to shape Next.js' roadmap and prioritize features.
+[02:33:21.516] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[02:33:21.516] https://nextjs.org/telemetry
+[02:33:21.516] 
+[02:33:21.573]   ▲ Next.js 14.2.5
+[02:33:21.573]   - Experiments (use with caution):
+[02:33:21.574]     · scrollRestoration
+[02:33:21.574] 
+[02:33:21.650]    Creating an optimized production build ...
+[02:33:51.513] Browserslist: caniuse-lite is outdated. Please run:
+[02:33:51.513]   npx update-browserslist-db@latest
+[02:33:51.514]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[02:34:00.222] Browserslist: caniuse-lite is outdated. Please run:
+[02:34:00.223]   npx update-browserslist-db@latest
+[02:34:00.223]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[02:34:03.092]  ✓ Compiled successfully
+[02:34:03.093]    Linting and checking validity of types ...
+[02:34:28.063] Failed to compile.
+[02:34:28.064] 
+[02:34:28.065] ./src/components/EnhancedProfilePage.tsx:17:3
+[02:34:28.065] Type error: Module '"@/svg_components"' has no exported member 'Settings'.
+[02:34:28.065] 
+[02:34:28.066] [0m [90m 15 |[39m   [33mDeviceLaptop[39m[33m,[39m[0m
+[02:34:28.066] [0m [90m 16 |[39m   [33mSend[39m[33m,[39m[0m
+[02:34:28.066] [0m[31m[1m>[22m[39m[90m 17 |[39m   [33mSettings[39m[33m,[39m[0m
+[02:34:28.066] [0m [90m    |[39m   [31m[1m^[22m[39m[0m
+[02:34:28.067] [0m [90m 18 |[39m   [33mActionsPlus[39m[33m,[39m[0m
+[02:34:28.067] [0m [90m 19 |[39m   [33mCalendar[39m[33m,[39m[0m
+[02:34:28.067] [0m [90m 20 |[39m   [33mWorldNet[39m[0m
+[02:34:28.152] Error: Command "npm run build" exited with 1
