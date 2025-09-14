@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma/prisma';
-import { getServerSession } from 'next-auth';
+import prisma from '@/lib/prisma/prisma';
+import { getServerSession } from "next-auth/next";
 
 export async function GET(request: NextRequest) {
   try {
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
         const hashtagData = {
           hashtag: query,
           posts: hashtagPosts.length,
-          engagement: hashtagPosts.reduce((sum, post) => 
+          engagement: hashtagPosts.reduce((sum, post) =>
             sum + post._count.likes + post._count.comments, 0
           ),
         };

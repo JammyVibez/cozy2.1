@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma/prisma';
-import { getServerSession } from 'next-auth';
+import prisma from '@/lib/prisma/prisma';
+import { getServerSession } from "next-auth/next";
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,11 +30,11 @@ export async function GET(request: NextRequest) {
 
     // Extract hashtags from post content
     const hashtagCounts: Record<string, { count: number; engagement: number }> = {};
-    
+
     posts.forEach(post => {
       const hashtags = post.content.match(/#\w+/g) || [];
       const engagement = post._count.likes + post._count.comments;
-      
+
       hashtags.forEach(hashtag => {
         const tag = hashtag.toLowerCase();
         if (!hashtagCounts[tag]) {
