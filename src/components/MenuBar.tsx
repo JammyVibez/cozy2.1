@@ -1,6 +1,6 @@
 'use client';
 
-import { Feather, GridFeedCards, LogOutCircle, NotificationBell, Profile, Search, TwoPeople } from '@/svg_components';
+import { Feather, GridFeedCards, LogOutCircle, NotificationBell, Profile, Search, TwoPeople, Other } from '@/svg_components';
 import { useSessionUserData } from '@/hooks/useSessionUserData';
 import { useNotificationsCountQuery } from '@/hooks/queries/useNotificationsCountQuery';
 import Link from 'next/link';
@@ -43,6 +43,7 @@ export function MenuBar() {
           badge: notificationCount,
         },
         { title: 'My Profile', Icon: Profile, route: `/${username}` },
+        { title: 'Settings', Icon: Other, route: '/settings' },
         {
           title: 'Logout',
           Icon: LogOutCircle,

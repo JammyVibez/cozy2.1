@@ -3,6 +3,8 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
   },
+  // Allow requests from Replit domains
+  allowedDevOrigins: ['*.replit.com', '*.repl.co', '*.replit.dev'],
   // Allow iframe embedding for Replit proxy environment
   async headers() {
     return [

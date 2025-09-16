@@ -1,0 +1,474 @@
+Nice — below is a single, comprehensive, **developer-ready** breakdown of the entire *community* surface of Cozy: every feature, every page and component, how users will interact with it, import/template details, the bot system, styling system, security, and practical notes on how to build each piece. I organized it so you can hand sections to your frontend dev, backend dev, or paste to Replit AI as tasks.
+
+# Overview — what we’re building
+
+Cozy’s community subsystem is a modular platform where a user can:
+
+* create or join communities,
+* choose a template, customize a community, or import a developer package (JS/Python),
+* run rich community experiences (posts, multi-image uploads, multi-emoji reactions, channels, chat, livestreams, mini-apps),
+* add bots/plugins from a marketplace (granting explicit scopes),
+* admin/manage members, roles, moderation, analytics.
+
+Everything is componentized: templates are just JSON manifests that map to Cozy UI components, and developer packages extend behavior via a sandboxed plugin/bot runtime.
+
+---
+
+# Top-level user journeys (3 examples)
+
+1. **Create-from-template**
+
+   * User → Create Community modal → Use Template → Browse Marketplace → Preview → Install → Community created with seed posts + channels → Start inviting people.
+2. **Customize-your-own**
+
+   * User → Create Community modal → Customize → Template Editor opens (drag-drop components, style tokens) → Save & Deploy as new community.
+3. **Import community package**
+
+   * Developer uploads package to marketplace (or user imports directly if allowed) → Package validated & optionally reviewed → Admin installs → Package’s manifest maps to UI + optionally starts sandboxed runtime for dynamic logic.
+
+---
+
+# Pages & Screens (each with core components & behaviors)
+
+## 1) Landing / Marketing
+
+* Components: hero, features, testimonials, waitlist CTA, "Showcase communities" carousel.
+* Purpose: attract signups, explain templates & bots, drive waitlist/referrals.
+
+## 2) Auth / Onboarding
+
+* Pages: Sign up, Login, OAuth flows, 2FA optional.
+* Components: name/avatar step, choose interests (seed community recommendations).
+* Behavior: optionally ask to create or join a community immediately (time-to-first-post optimization).
+
+## 3) Global Home / Discovery
+
+* Components: global feed, discover templates, featured communities, trending posts, search bar.
+* Behavior: explore communities, follow/join, preview community profiles.
+
+## 4) Community Landing Page (the main area)
+
+* URL: `/c/:communitySlug`
+* Components:
+
+  * Header: community name, join/leave button, community avatar, topic tags, member counter.
+  * Subnav: Home / Channels / Members / Bots / Settings / About
+  * Main column: configurable component stack (Hero, Rules, Feed, Featured Channel)
+  * Right column (optional): trending posts, pinned content, community actions.
+* Behavior: header shows user’s role (owner/mod/member/guest), community theme applied at runtime.
+
+## 5) Channels & Feeds
+
+* Types: threaded channels (text), feed channels (open stream), announcement channels.
+* Components:
+
+  * Channel list (left): channel name, unread badges.
+  * Channel view (center): posts with composer at top/bottom.
+  * Post card: author info, content, multi-image carousel, attachments, reactions bar, timestamp, options menu (edit, delete, pin, report).
+* Behavior: pinned posts, pinned channels, moderation actions, sticky rules.
+
+## 6) Post Composer
+
+* Features:
+
+  * Text input with markdown support (optional).
+  * Attach multiple images, drag + drop, preview.
+  * Status posts (short ephemeral statuses).
+  * Polls & embeds.
+* UX: show upload progress; optimistic UI; show character counts.
+
+## 7) Reactions & Multi-likes
+
+* UI:
+
+  * Reaction bar: multiple emoji reaction counts, hover to see members who reacted.
+  * Add custom emoji (community scoped).
+* Behavior: allow users to change reaction type (not just toggle a single like). Reactions stored as map `{emoji: [userId,...]}`.
+
+## 8) Profiles
+
+* Pages: `/u/:username`
+* Components: avatar, banner, bio, community membership list, posts by user, settings.
+* Customization: theme color, short bio, social links.
+
+## 9) Create Community Modal / Flow
+
+* Modal with 3 choices:
+
+  1. **Use Template** → opens Marketplace modal (filter by Free, Premium, PID).
+  2. **Customize Your Own** → opens Template Editor (default layout).
+  3. **Import** → opens Import page/uploader (accept ZIP package; initially only JS/Python stubs).
+* Components: preview thumbnails, install button, confirm permissions for advanced templates/bots.
+
+## 10) Template Marketplace
+
+* Pages: marketplace home, template detail (preview, author, pricing), install button, ratings/reviews.
+* Components: filters, categories, preview viewer, “Try demo” (preview mode).
+* Behavior: purchase flows, install to community, seed content preview, template versioning.
+
+## 11) Template Editor (Customizer)
+
+* UI: Canvas (WYSIWYG) + component palette + property inspector.
+* Components (drag & drop): Feed, Channel, Hero banner, Rules, Pin, Bot Slot, CTA, Image gallery, Member list.
+* Properties: spacing, font-size, color tokens, visibility rules, permissions per component.
+* Actions: Preview, Seed (deploy and create community with that config), Export (export as package).
+
+## 12) Import Page / Upload (developer import)
+
+* Upload ZIP with manifest; show parse result (components, required scopes, assets).
+* Validation errors: missing manifest, invalid schema, unsupported asset types.
+* For safety: show required scopes and note sandboxing status.
+
+## 13) Bot Marketplace
+
+* Pages: bot list, bot detail (manifest: events, scopes, pricing), install flow.
+* Components: install modal with scope consent, configuration panel for bot, bot health status.
+* Behavior: install/uninstall bots, enable/disable per community, configure settings.
+
+## 14) Community Admin Console
+
+* Sub-pages: Members & Roles, Moderation (reports queue), Templates & Bots (installed), Settings, Analytics, Billing (if paid).
+* Components: role editor, invite links, audit log, content removal tools, ban/unban flows.
+
+## 15) Moderation Dashboard
+
+* Features: reported content queue, automated content review suggestions (toxicity score), user history, bulk actions (delete, warn, ban), escalation to human review.
+* Components: report viewer, evidence panel, action buttons, case notes.
+
+## 16) Developer Portal (for authors)
+
+* Upload templates & bots, manage versions, view installs, earnings dashboard, API keys, documentation.
+
+---
+
+# Components (atomic → composite)
+
+List of main UI components and their responsibilities:
+
+### Atomic
+
+* Avatar, Button, Icon, Badge, TextInput, FileUpload, Modal, Toast, Tooltip.
+
+### Molecules
+
+* ReactionPicker (emoji grid), PostCardHeader (avatar + meta), ImageCarousel, ComposerBar, ChannelListItem.
+
+### Organisms
+
+* PostCard, ChannelView, TemplatePreviewCard, BotInstallPanel, TemplateEditorCanvas, AdminTable.
+
+### Pages (composed from organisms)
+
+* CommunityPage, MarketplacePage, AdminConsole.
+
+Each component should accept props that map directly to the manifest or the API (e.g., `PostCard(post: Post, currentUserId)`).
+
+---
+
+# Data Models (concise)
+
+Key tables/collections (fields abbreviated):
+
+* `users` `{id, email, username, displayName, avatarUrl, bio, preferences}`
+* `communities` `{id, slug, name, ownerId, theme, templateId, settings, privacy}`
+* `memberships` `{userId, communityId, role, joinedAt}`
+* `templates` `{id, name, authorId, manifest, version, price, tags}`
+* `posts` `{id, communityId, authorId, channelId, content, media[], reactions: {emoji: count}, createdAt}`
+* `reactions` `{postId, emoji, userId}` or denormalized within `posts`
+* `bots` `{id, authorId, manifest, scopes[], verified, pricing}`
+* `bot_installs` `{botId, communityId, config, token, installedAt}`
+* `assets` media references: S3 keys + metadata
+* `events/audit` for moderation and bot events
+
+---
+
+# APIs & Real-time events (recommended)
+
+## REST/GraphQL endpoints (examples)
+
+* `POST /api/auth/signup` / `POST /api/auth/login`
+* `GET /api/communities` (search/filter)
+* `POST /api/communities` (create)
+* `GET /api/communities/:id` (community manifest)
+* `POST /api/communities/:id/templates/install`
+* `POST /api/templates/upload` (developer upload)
+* `POST /api/templates/:id/validate`
+* `POST /api/bots/upload`
+* `POST /api/bots/:id/install`
+* `POST /api/posts` (create post)
+* `POST /api/posts/:id/reaction` (add/remove)
+* `GET /api/admin/reports`
+* `POST /api/moderation/action`
+
+## WebSocket / Socket.IO events
+
+* `connect` / `disconnect`
+* `post:create` → server emits new post to subscribers of channel/community.
+* `post:update` / `post:delete`
+* `reaction:update` → updated reaction tallies.
+* `presence:update` → online user lists.
+* `bot:event` → runtime events delivered to sandboxed bots.
+* `template:deploy` → real-time progress for large template installs.
+
+---
+
+# Template manifest spec (example + fields)
+
+A manifest is the canonical mapping between a template package and Cozy.
+
+```json
+{
+  "name": "Study Group Starter",
+  "slug": "study-group",
+  "version": "1.0.0",
+  "author": "CozyOfficial",
+  "type": "free",
+  "components": [
+    { "id":"hero", "type":"hero", "props": { "title":"Study Group", "subtitle":"Join us" } },
+    { "id":"general", "type":"channel", "props": { "name":"general", "visibility":"public" } },
+    { "id":"resources", "type":"channel", "props": { "name":"resources", "visibility":"public" } }
+  ],
+  "seed_posts": [
+    { "author":"cozy", "content":"Welcome to your study group!" }
+  ],
+  "required_scopes": ["bots:install", "assets:upload"],
+  "assets": ["assets/banner.png"]
+}
+```
+
+**Validation rules**
+
+* manifest versioning
+* required fields: `name`, `slug`, `components`
+* schema validation for each component type
+* asset size/type validation
+
+---
+
+# Import / Upload pipeline (developer packages)
+
+1. **Upload**
+
+   * Developer uploads ZIP to developer portal.
+   * Server stores package in private staging S3.
+2. **Static validation**
+
+   * Validate `manifest.json` schema.
+   * Lint JS/Python code (for style, dependency blacklists).
+   * Check for disallowed binaries.
+3. **Automated tests (optional)**
+
+   * Static analysis: dependency scanning for unsafe libs.
+   * Simple unit smoke tests in a safe sandbox.
+4. **Manual review**
+
+   * Human review for security-sensitive templates/plugins.
+   * Sign package after approval (signing key).
+5. **Publish**
+
+   * Package appears in marketplace as “verified”.
+6. **Install by community**
+
+   * Admin clicks install — shows required scopes & preview seed content.
+   * Admin gives consent. If package has runtime code, the runtime is executed in a sandbox with resource quotas.
+
+**Important:** During Phase 1, accept packages but DO NOT run unreviewed code automatically. Use manual approval or a staged review process.
+
+---
+
+# Bot System (detailed)
+
+## Bot types
+
+* **Reactive bots:** respond to chat messages, commands, reactions.
+* **Scheduled bots:** run periodic jobs (e.g., daily summary).
+* **Moderation bots:** perform auto-moderation (with admin consent).
+* **Mini-app bots:** games, polls, external integrations.
+
+## Bot SDK (JS example)
+
+```js
+// bot/index.js
+module.exports = (context) => {
+  // context: { sendMessage, on, getConfig, http }
+  context.on('message', async (event) => {
+    const { content, channelId, authorId } = event;
+    if (content.startsWith('!hello')) {
+      await context.sendMessage(channelId, `Hi <@${authorId}>!`);
+    }
+  });
+
+  context.on('install', async (meta) => {
+    // meta.communityId
+  });
+};
+```
+
+Python would be analogous with a simple handler registration.
+
+## Bot lifecycle
+
+* Upload bot package + manifest → validation → publish.
+* Community admin installs bot → admin consents to requested scopes (read posts, write messages).
+* Cozy creates an `installation token` scoped to that bot & community.
+* Cozy runtime forwards events (`message`, `reaction`, `post:created`) to the sandboxed bot process / serverless function.
+* Bot calls Cozy API with installation token to perform actions (`sendMessage`, `deleteMessage`, `moderateUser`).
+
+## Bot security
+
+* Strict scope model: bots can only access the scopes they request and were granted.
+* Rate limits per bot install.
+* Execution timeouts and memory limits.
+* Audit logs for bot actions.
+
+## Monetization for bots
+
+* Bot manifests can declare pricing.
+* Marketplace handles checkout, subscriptions, and developer payouts.
+
+---
+
+# Styling & Design System
+
+## Theming
+
+* Use a token-based system: primary, secondary, background, surface, text, accent, spacing, radii, fonts.
+* Allow per-community theme overrides by mapping tokens to CSS variables: `--cozy-primary`, etc.
+* Tailwind set up with design tokens and an optional `cozyTheme` plugin.
+
+## Component variants
+
+* Each component supports variants: `dense`, `comfortable`, `compact`.
+* Accessibility: focus states, high contrast mode, keyboard nav.
+
+## Visual language
+
+* Soft rounded corners, 2xl for cards, gentle shadows for depth, warm neutral color palette (cozy feeling).
+* Reaction emojis and animated micro-interactions (like reaction burst).
+
+---
+
+# Build plan: steps & priorities (practical)
+
+### Phase 1 (MVP — 6–10 weeks)
+
+1. Repo scaffold (monorepo) + CI.
+2. Auth + user profiles + DB skeleton.
+3. Posts & basic feed (create/read/delete) + file uploads.
+4. Communities basic model + Create Community modal (Use Template & Customize stubs).
+5. Realtime messages for new posts via Socket.IO.
+6. Template Marketplace (read-only) + install simple manifest → render.
+7. Admin console (members & roles).
+8. Simple Bot Marketplace UI (without runtime).
+
+**Acceptance criteria:** create community from template, post, react, invite members, admin manage members.
+
+### Phase 2 (Extensibility — 8–12 weeks)
+
+1. Template editor (drag/drop) + preview + seed.
+2. Import pipeline (upload + validation + manual review flow).
+3. Bot runtime v1: sandboxed serverless or container runtime for vetted bots.
+4. Bot SDK & example bots (JS/Python).
+5. Monetization foundations (checkout + subscriptions).
+
+**Acceptance criteria:** upload a bot to marketplace, install in community, bot responds to a command in a community.
+
+### Phase 3 (Scale & polish)
+
+1. WASM sandboxing or hardened container orchestration for plugin runtime.
+2. Livestream integration, advanced moderation, analytics dashboards, enterprise features.
+
+---
+
+# Implementation details & tips (dev-level)
+
+## Frontend
+
+* React + Next.js (TS). Use Pages for community routes for SEO; use client components for dynamic interactions.
+* Component props align with manifest shape so templates apply easily.
+* Use `React Query` for cache + optimistic updates on posts & reactions.
+
+## Backend
+
+* NestJS or Express with TypeScript. Use Prisma for DB modeling to iterate faster.
+* Use Redis for pub/sub and presence.
+* Implement a small `event-broker` service that fans out events to subscribers and to bot runtime.
+
+## Bot runtime options (phase decisions)
+
+* **Quick (phase 2):** run verified bots as serverless functions (e.g., AWS Lambda) but only after manual review. Cozy calls HTTP endpoints with signed payloads; bots reply to Cozy via REST API.
+* **Safer, faster (phase 3):** use WASM or language-isolated microVMs (e.g., Wasmtime, Wasmer, or Cloudflare Workers-like model) for embedded execution.
+
+## Sandboxing & resource control
+
+* Limit CPU, memory, runtime seconds.
+* Blacklist dangerous modules at packaging stage (no file system writes, no SSH).
+* Sign approved packages and store signatures in DB; only signed packages get runtime privileges.
+
+## Testing
+
+* E2E tests for create-community flows, bot install & sample command flows.
+* Contract tests for Bot SDK and API endpoints.
+* Security scans for uploaded packages (SCA).
+
+---
+
+# Example user stories (detailed)
+
+### A. New user creates community from template
+
+1. Press Create → Use Template → pick “Study Group” → click Install.
+2. App creates a new `community` row with `templateId`.
+3. Backend renders components based on manifest → create channels + seed posts + default roles.
+4. User lands in community page with theme applied and sees seed posts → invites friends via share link.
+
+### B. Admin installs a bot
+
+1. Admin goes to Bot Marketplace → picks `WelcomeBot` → clicks `Add`.
+2. Modal shows bot requested scopes: `write:messages, read:members`.
+3. Admin grants scopes → Cozy provisions `bot_install` with token.
+4. Bot receives `install` event in runtime → can post welcome messages on `member:join`.
+
+### C. Developer publishes a bot
+
+1. Developer zips package containing `manifest.json` + `index.js`.
+2. Upload to Developer Portal → runs static validation.
+3. After manual review, admin approves and bot appears in Marketplace.
+
+---
+
+# Security & moderation (concise)
+
+* Role-based access control; community-level roles.
+* Content moderation pipeline: automated filters → human queue.
+* Import & bot sandboxing: manual review + signed packages initially.
+* Audit logs for every moderation and bot action.
+* Rate-limits, throttling, per-bot per-community quotas.
+
+---
+
+# Monitoring & operational concerns
+
+* Track key metrics: communities created, installs, DAU/MAU, posts per community, bot installs, errors.
+* Logs: structured logs for bot actions; central auditing service.
+* Alerts for sandbox crashes, high resource usage.
+
+---
+
+# Deliverables you can hand to devs now
+
+1. This doc (hand-off).
+2. JSON schema for manifest (I can produce).
+3. Bot SDK stub (JS + Python) with README (I can produce).
+4. Minimal API contract for posts, reactions, community install (I can produce).
+5. Wireframes for Create Community flow (I can produce).
+
+---
+
+If you want, I’ll now:
+
+* produce the **manifest JSON schema** (validation rules, JSON Schema v7),
+* generate **Bot SDK stubs** (full JS + Python examples + README),
+* or produce **detailed API contracts** (OpenAPI spec) for the endpoints above.
+
+Which of those should I make next?
