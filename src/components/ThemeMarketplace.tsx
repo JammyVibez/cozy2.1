@@ -80,17 +80,9 @@ export function ThemeMarketplace() {
   );
 
   const handlePurchase = (theme: Theme) => {
-    if (theme.price === 0) {
-      // Free theme, just apply it
-      showToast({ 
-        title: 'Theme Applied! 🎨', 
-        message: `${theme.name} is now active`,
-        type: 'success' 
-      });
-      setSelectedTheme(null);
-    } else {
-      purchaseMutation.mutate(theme.id);
-    }
+    // Always go through the purchase API for both free and paid themes
+    // This ensures ownership records are created properly
+    purchaseMutation.mutate(theme.id);
   };
 
   if (isLoading) {
@@ -166,7 +158,7 @@ export function ThemeMarketplace() {
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold">{theme.name}</h3>
                 <span className="text-sm font-bold text-primary">
-                  {theme.price === 0 ? 'Free' : `$${theme.price}`}
+                  {theme.price === 0 ? 'Free' : `${Math.round(theme.price * 100)} coins`}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
@@ -279,7 +271,7 @@ export function ThemeMarketplace() {
                       loading={purchaseMutation.isPending}
                       className="flex-1"
                     >
-                      {selectedTheme.price === 0 ? 'Apply Theme' : `Buy for $${selectedTheme.price}`}
+                      {selectedTheme.price === 0 ? 'Apply Theme' : `Buy for ${Math.round(selectedTheme.price * 100)} coins`}
                     </Button>
                   )}
                 </div>

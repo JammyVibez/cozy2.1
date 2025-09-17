@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import prisma from '@/lib/prisma/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,71 +9,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Mock themes data - in real implementation, fetch from database
-    const themes = [
-      {
-        id: '1',
-        name: 'Dark Neon',
-        description: 'Cyberpunk-inspired dark theme with neon accents',
-        price: 1.99,
-        category: 'NEON',
-        colorScheme: {
-          primary: '#00ff88',
-          secondary: '#ff0080',
-          background: '#0a0a0a',
-          accent: '#ff6600'
-        },
-        preview: '/themes/dark-neon-preview.png',
-        isOwned: false
+    // Fetch themes from database
+    const themes = await prisma.theme.findMany({
+      where: { isActive: true },
+      include: {
+        users: {
+          where: { userId: session.user.id },
+          select: { id: true, isActive: true }
+        }
       },
-      {
-        id: '2',
-        name: 'Gamer Pro',
-        description: 'Ultimate gaming theme with RGB highlights',
-        price: 2.99,
-        category: 'GAMING',
-        colorScheme: {
-          primary: '#ff3366',
-          secondary: '#3366ff',
-          background: '#1a1a2e',
-          accent: '#16213e'
-        },
-        preview: '/themes/gamer-pro-preview.png',
-        isOwned: false
-      },
-      {
-        id: '3',
-        name: 'Minimal Clean',
-        description: 'Clean, minimalist design for focused work',
-        price: 0.99,
-        category: 'MINIMAL',
-        colorScheme: {
-          primary: '#2563eb',
-          secondary: '#64748b',
-          background: '#ffffff',
-          accent: '#f1f5f9'
-        },
-        preview: '/themes/minimal-clean-preview.png',
-        isOwned: false
-      },
-      {
-        id: '4',
-        name: 'Professional',
-        description: 'Sophisticated theme for business professionals',
-        price: 1.49,
-        category: 'PROFESSIONAL',
-        colorScheme: {
-          primary: '#1e40af',
-          secondary: '#374151',
-          background: '#f9fafb',
-          accent: '#e5e7eb'
-        },
-        preview: '/themes/professional-preview.png',
-        isOwned: false
-      }
-    ];
+      orderBy: { name: 'asc' }
+    });
 
-    return NextResponse.json({ themes });
+    const formattedThemes = themes.map(theme => ({
+      id: theme.id,
+      name: theme.name,
+      description: theme.description || '',
+      price: theme.price,
+      category: theme.category,
+      colorScheme: theme.colorScheme as any,
+      preview: `/themes/${theme.id}-preview.png`,
+      isOwned: (theme.users && theme.users.length > 0) || false
+    }));
+
+    return NextResponse.json({ themes: formattedThemes });
   } catch (error) {
     console.error('Error fetching themes:', error);
     return NextResponse.json(
@@ -98,17 +58,97 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // In a real implementation, you would:
-    // 1. Check if theme exists
-    // 2. Check if user already owns theme
-    // 3. Process payment
-    // 4. Grant theme access
-    // 5. Update user's owned themes
+    // Check if theme exists and is active
+    const theme = await prisma.theme.findFirst({
+      where: { 
+        id: themeId,
+        isActive: true 
+      }
+    });
+
+    if (!theme) {
+      return NextResponse.json({ 
+        error: 'Theme not found or inactive' 
+      }, { status: 404 });
+    }
+
+    // Check if user already owns theme
+    const existingPurchase = await prisma.userTheme.findUnique({
+      where: {
+        userId_themeId: {
+          userId: session.user.id,
+          themeId: themeId
+        }
+      }
+    });
+
+    if (existingPurchase) {
+      return NextResponse.json({ 
+        error: 'You already own this theme' 
+      }, { status: 400 });
+    }
+
+    // If theme is free, grant access immediately
+    if (theme.price === 0) {
+      const purchase = await prisma.userTheme.create({
+        data: {
+          userId: session.user.id,
+          themeId: themeId,
+          isActive: false
+        }
+      });
+
+      return NextResponse.json({ 
+        success: true,
+        message: 'Free theme added to your collection',
+        themeId,
+        purchase
+      });
+    }
+
+    // For paid themes, check user's Cozy Coins balance
+    // Convert theme price from dollars to coins (1 dollar = 100 coins)
+    const priceInCoins = Math.round(theme.price * 100);
+    
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { cozyCoins: true }
+    });
+
+    if (!user || user.cozyCoins < priceInCoins) {
+      return NextResponse.json({ 
+        error: 'Insufficient Cozy Coins',
+        required: priceInCoins,
+        available: user?.cozyCoins || 0,
+        priceInDollars: theme.price
+      }, { status: 400 });
+    }
+
+    // Perform the purchase transaction
+    const [purchase, updatedUser] = await prisma.$transaction([
+      prisma.userTheme.create({
+        data: {
+          userId: session.user.id,
+          themeId: themeId,
+          isActive: false
+        }
+      }),
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          cozyCoins: {
+            decrement: priceInCoins
+          }
+        }
+      })
+    ]);
 
     return NextResponse.json({ 
-      success: true, 
+      success: true,
       message: 'Theme purchased successfully',
-      themeId
+      themeId,
+      purchase,
+      remainingCoins: updatedUser.cozyCoins
     });
   } catch (error) {
     console.error('Error purchasing theme:', error);
