@@ -83,59 +83,6 @@ export function RealTimeNotifications() {
   return null; // This component doesn't render anything
 }
 
-interface NotificationData {
-  id: string;
-  type: 'like' | 'comment' | 'follow' | 'mention';
-  message: string;
-  fromUser: {
-    name: string;
-    username: string;
-    profilePhoto: string | null;
-  };
-  targetId?: string;
-}
-
-export function RealTimeNotifications() {
-  const { data: session } = useSession();
-  const { showToast } = useToast();
-
-  useEffect(() => {
-    if (!session?.user?.id) return;
-
-    const pusher = getPusherClient();
-    const channel = pusher.subscribe(`user-${session.user.id}`);
-
-    // Listen for new notifications
-    channel.bind('new-notification', (data: NotificationData) => {
-      showToast({
-        title: 'New Notification',
-        message: data.message,
-        type: 'default',
-      });
-    });
-
-    // Listen for live likes
-    channel.bind('post-liked', (data: { postId: string; userId: string; userName: string }) => {
-      // You can update the UI in real-time here
-      const event = new CustomEvent('postLiked', { detail: data });
-      window.dispatchEvent(event);
-    });
-
-    // Listen for live comments
-    channel.bind('new-comment', (data: { postId: string; comment: any }) => {
-      const event = new CustomEvent('newComment', { detail: data });
-      window.dispatchEvent(event);
-    });
-
-    return () => {
-      channel.unbind_all();
-      pusher.unsubscribe(`user-${session.user.id}`);
-    };
-  }, [session?.user?.id, showToast]);
-
-  return null; // This component doesn't render anything
-}
-
 // Hook for subscribing to post-specific updates
 export function usePostUpdates(postId: string) {
   const { data: session } = useSession();

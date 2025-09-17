@@ -1,4 +1,3 @@
-
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -410,6 +409,23 @@ CREATE TABLE messages (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Create UserStatus table for status updates
+CREATE TABLE "UserStatus" (
+  "id" TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "type" TEXT NOT NULL CHECK ("type" IN ('text', 'mood', 'activity')),
+  "text" TEXT,
+  "mood" TEXT,
+  "activity" TEXT,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "expiresAt" TIMESTAMP(3) NOT NULL
+);
+
+-- Create indexes for UserStatus
+CREATE INDEX "UserStatus_userId_idx" ON "UserStatus"("userId");
+CREATE INDEX "UserStatus_expiresAt_idx" ON "UserStatus"("expiresAt");
+CREATE INDEX "UserStatus_createdAt_idx" ON "UserStatus"("createdAt");
+
 -- Create indexes for better performance
 CREATE INDEX idx_posts_user_id ON posts(user_id);
 CREATE INDEX idx_posts_community_id ON posts(community_id);
@@ -429,6 +445,7 @@ ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE communities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE community_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "UserStatus" ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies (basic examples)
 CREATE POLICY "Users can view public profiles" ON users FOR SELECT USING (true);
