@@ -5,6 +5,12 @@ import { Key, useCallback } from 'react';
 import { useCreatePostModal } from '@/hooks/useCreatePostModal';
 import { useDeletePostMutation } from '@/hooks/mutations/useDeletePostMutation';
 import { DropdownMenuButton } from './ui/DropdownMenuButton';
+import { Delete, Edit, MoreVert } from '@/svg_components'
+import { useUpdateDeleteComments } from '@/hooks/useUpdateDeleteComments'
+import { useToast } from '@/hooks/useToast'
+import { useSessionUserData } from '@/hooks/useSessionUserData'
+import { GetUser } from '@/types/definitions'
+import { ReportButton } from './ReportButton'
 
 export function PostOptions({
   postId,
@@ -18,8 +24,11 @@ export function PostOptions({
   const { confirm } = useDialogs();
   const { launchEditPost } = useCreatePostModal();
   const { deleteMutation } = useDeletePostMutation();
+  const { data: sessionUserData } = useSessionUserData();
 
-  const handleDeleteClick = useCallback(() => {
+  const isOwnPost = sessionUserData?.id === sessionUserData?.id; // Assuming you have a way to get the current user's ID
+
+  const handleDeletePost = useCallback(() => {
     confirm({
       title: 'Delete Post',
       message: 'Do you really wish to delete this post?',
@@ -43,11 +52,12 @@ export function PostOptions({
     (key: Key) => {
       if (key === 'edit') {
         handleEditClick();
-      } else {
-        handleDeleteClick();
+      } else if (key === 'delete') {
+        handleDeletePost();
       }
+      // No action for report key here as ReportButton handles its own click
     },
-    [handleEditClick, handleDeleteClick],
+    [handleEditClick, handleDeletePost],
   );
 
   return (
@@ -55,6 +65,19 @@ export function PostOptions({
       <Section>
         <Item key="edit">Edit Post</Item>
         <Item key="delete">Delete Post</Item>
+        {!isOwnPost && (
+          <Item key="report">
+            <ReportButton
+              targetType="POST"
+              targetId={postId.toString()}
+              targetTitle="Post"
+              className="flex items-center gap-3 w-full py-1 text-red-500 bg-transparent border-none cursor-pointer"
+            >
+              <span className="text-sm">🚩</span>
+              <span className="text-sm">Report</span>
+            </ReportButton>
+          </Item>
+        )}
       </Section>
     </DropdownMenuButton>
   );

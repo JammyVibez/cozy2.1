@@ -147,6 +147,12 @@ model Post {
   
   // Community relationships
   communityPost CommunityPost?
+
+  
+  // Report relationships
+  reports         Report[]        @relation("UserReports")
+  moderatorActions ReportAction[] @relation("ModeratorActions")
+
   pinnedIn      CommunityPinnedPost[]
   
   // Monetization relationships
@@ -834,4 +840,79 @@ enum IntegrationType {
   SPOTIFY
   REDDIT
   LINKEDIN
+}
+
+
+// Report System Models
+model Report {
+  id          String       @id @default(cuid())
+  targetType  ReportTargetType
+  targetId    String       // Can reference Post.id, Comment.id, or User.id
+  reason      String
+  category    ReportCategory
+  description String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Reporter relationship
+  reporter    User         @relation("UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId  String
+  
+  // Moderation action (if any)
+  moderatorAction ReportAction?
+  
+  @@index([status])
+  @@index([category])
+  @@index([targetType, targetId])
+  @@index([reporterId])
+}
+
+model ReportAction {
+  id          String     @id @default(cuid())
+  actionType  ReportActionType
+  reason      String
+  actionDate  DateTime   @default(now())
+  
+  // Moderator relationship
+  moderator   User       @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
+  moderatorId String
+  
+  // Report relationship
+  report      Report     @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId    String     @unique
+}
+
+enum ReportTargetType {
+  POST
+  COMMENT
+  USER
+}
+
+enum ReportCategory {
+  SPAM
+  HARASSMENT
+  HATE_SPEECH
+  VIOLENCE
+  SEXUAL_CONTENT
+  COPYRIGHT
+  MISINFORMATION
+  FAKE_ACCOUNT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum ReportActionType {
+  WARNING_ISSUED
+  CONTENT_REMOVED
+  USER_SUSPENDED
+  USER_BANNED
+  NO_ACTION
+  CONTENT_HIDDEN
 }

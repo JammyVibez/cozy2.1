@@ -4,6 +4,7 @@ import Button from '@/components/ui/Button';
 import { useFollowsMutations } from '@/hooks/mutations/useFollowsMutations';
 import { useUserQuery } from '@/hooks/queries/useUserQuery';
 import { useCallback } from 'react';
+import { ReportButton } from './ReportButton';
 
 export function ProfileActionButtons({ targetUserId }: { targetUserId: string }) {
   const { data: targetUser, isPending } = useUserQuery(targetUserId);
@@ -26,6 +27,14 @@ export function ProfileActionButtons({ targetUserId }: { targetUserId: string })
         {isFollowing ? 'Unfollow' : 'Follow'}
       </Button>
       {/* <Button Icon={Mail} onPress={() => {}} mode="secondary" size="medium" /> */}
+      <ReportButton
+        targetType="USER"
+        targetId={targetUserId}
+        targetTitle={`@${targetUser?.username ?? ''}`}
+        className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+      >
+        🚩
+      </ReportButton>
     </div>
   );
 }

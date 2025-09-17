@@ -187,3 +187,58 @@ export interface GetActivity extends FindActivityResult {
   content?: string | null;
 }
 export type GetActivities = GetActivity[];
+// Report System Types
+export interface CreateReport {
+  targetType: 'POST' | 'COMMENT' | 'USER';
+  targetId: string;
+  reason: string;
+  category: ReportCategory;
+  description?: string;
+}
+
+export interface GetReport {
+  id: string;
+  targetType: 'POST' | 'COMMENT' | 'USER';
+  targetId: string;
+  reason: string;
+  category: ReportCategory;
+  description: string | null;
+  status: ReportStatus;
+  createdAt: string;
+  updatedAt: string;
+  reporter: UserSummaryAfterSetUp;
+  targetUser?: UserSummaryAfterSetUp;
+  targetPost?: {
+    id: number;
+    content: string | null;
+    user: UserSummaryAfterSetUp;
+  };
+  targetComment?: {
+    id: number;
+    content: string;
+    user: UserSummaryAfterSetUp;
+  };
+  moderatorAction?: {
+    actionType: string;
+    reason: string;
+    moderator: UserSummaryAfterSetUp;
+    actionDate: string;
+  };
+}
+
+export type ReportCategory = 
+  | 'SPAM'
+  | 'HARASSMENT'
+  | 'HATE_SPEECH'
+  | 'VIOLENCE'
+  | 'SEXUAL_CONTENT'
+  | 'COPYRIGHT'
+  | 'MISINFORMATION'
+  | 'FAKE_ACCOUNT'
+  | 'OTHER';
+
+export type ReportStatus = 
+  | 'PENDING'
+  | 'UNDER_REVIEW' 
+  | 'RESOLVED'
+  | 'DISMISSED';

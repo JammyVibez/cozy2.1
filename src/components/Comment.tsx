@@ -21,6 +21,7 @@ import Button from './ui/Button';
 import { CommentReplies } from './CommentReplies';
 import { CommentContent } from './CommentContent';
 import { ToggleStepper } from './ui/ToggleStepper';
+import { ReportButton } from './ReportButton';
 
 export const Comment = memo(
   ({
@@ -99,7 +100,7 @@ export const Comment = memo(
     }, []);
 
     return (
-      <div 
+      <div
         className={cn(
           "flex gap-4 p-3 rounded-lg transition-all duration-200",
           "bg-card border border-border/40",
@@ -144,6 +145,26 @@ export const Comment = memo(
                 </Section>
               </DropdownMenuButton>
             )}
+            {!isOwnComment && (
+                    <DropdownMenuButton
+                      key={`comments-${commentId}-report`}
+                      label="Comment options"
+                      onAction={onDropdownAction}>
+                      <Section>
+                          <Item key="report">
+                              <ReportButton
+                                targetType="COMMENT"
+                                targetId={commentId.toString()}
+                                targetTitle="Comment"
+                                className="flex items-center gap-2 w-full p-2 text-left bg-transparent border-none cursor-pointer"
+                              >
+                                <span>🚩</span>
+                                Report
+                              </ReportButton>
+                          </Item>
+                      </Section>
+                    </DropdownMenuButton>
+                  )}
           </div>
 
           {repliesShown && <CommentReplies parentId={commentId} />}
