@@ -1,5 +1,5 @@
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type ThemeVariant = 'default' | 'gojo' | 'sakura' | 'ocean' | 'forest' | 'sunset' | 'neon';
+export type ThemeVariant = 'default' | 'gojo' | 'sakura' | 'ocean' | 'forest' | 'sunset' | 'neon' | 'dragon' | 'sea' | 'midnight' | 'royal' | 'autumn';
 
 export interface ThemeConfig {
   name: string;
