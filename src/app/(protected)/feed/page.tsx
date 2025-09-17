@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { CreatePostModalLauncher } from '@/components/CreatePostModalLauncher';
 import { Posts } from '@/components/Posts';
-import { CreatePostSort } from '@/components/CreatePostSort';
+
 import { GenericLoading } from '@/components/GenericLoading';
 import { StatusViewer } from '@/components/StatusViewer';
 import { StatusCreator } from '@/components/StatusCreator';
@@ -55,7 +55,6 @@ export default async function Page() {
       </div>
 
       <CreatePostModalLauncher />
-      <CreatePostSort />
       <Suspense fallback={<GenericLoading />}>
         <Posts type="feed" userId={user.id} />
       </Suspense>

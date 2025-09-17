@@ -22,7 +22,7 @@ interface UserStatus {
   };
 }
 
-export function StatusViewer() {
+export default function StatusViewer() {
   const [statuses, setStatuses] = useState<UserStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
@@ -184,3 +184,5 @@ export function StatusViewer() {
     </div>
   );
 }
+
+export { StatusViewer };
