@@ -5,7 +5,7 @@ import 'swiper/css/zoom';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Poppins } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import { cn } from '@/lib/cn';
 import { Providers } from '@/components/Providers';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -14,9 +14,14 @@ import { PWAInstaller } from '@/components/PWAInstaller';
 import { auth } from '@/auth';
 import React from 'react';
 
-const poppins = Poppins({
-  weight: ['400', '500', '600', '700'],
+const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-inter',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
 });
 
 export const metadata: Metadata = {
@@ -83,7 +88,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className={cn('bg-background text-foreground overflow-y-scroll', poppins.className)}>
+      <body className={cn('bg-background text-foreground overflow-y-scroll font-sans', inter.variable, jetbrainsMono.variable)}>
         <ThemeProvider>
           <Providers session={session}>
             {children}
