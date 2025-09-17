@@ -7,6 +7,7 @@ import { cn } from '@/lib/cn';
 import { getPusherClient } from '@/lib/pusher/pusherClientSide';
 import { useToast } from '@/hooks/useToast';
 import { StatusCreator } from './StatusCreator';
+import { StatusViewer } from './StatusViewer';
 
 interface TrendingUser {
   id: string;
@@ -51,7 +52,7 @@ interface Integration {
 }
 
 export function RightSidebar() {
-  const [activeTab, setActiveTab] = useState<'trending' | 'communities' | 'activity' | 'integrations'>('trending');
+  const [activeTab, setActiveTab] = useState<'status' | 'trending' | 'communities' | 'activity' | 'integrations'>('status');
   const [trendingUsers, setTrendingUsers] = useState<TrendingUser[]>([]);
   const [activeCommunities, setActiveCommunities] = useState<ActiveCommunity[]>([]);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
@@ -201,6 +202,7 @@ export function RightSidebar() {
   };
 
   const tabs = [
+    { id: 'status', label: 'Status', icon: '💭' },
     { id: 'trending', label: 'Trending', icon: '🔥' },
     { id: 'communities', label: 'Communities', icon: '🏘️' },
     { id: 'activity', label: 'Activity', icon: '⚡' },
@@ -210,16 +212,6 @@ export function RightSidebar() {
   return (
     <>
       <div className="hidden xl:block w-80 space-y-4">
-        {/* Status Creator Button */}
-        <div className="bg-card border rounded-xl p-4">
-          <button
-            onClick={() => setShowStatusCreator(true)}
-            className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity"
-          >
-            💭 Share Status
-          </button>
-        </div>
-
         {/* Main Sidebar */}
         <div className="bg-card border rounded-xl overflow-hidden">
           {/* Tab Navigation */}
@@ -244,6 +236,26 @@ export function RightSidebar() {
           {/* Tab Content */}
           <div className="p-4 max-h-96 overflow-y-auto">
             <AnimatePresence mode="wait">
+              {activeTab === 'status' && (
+                <motion.div
+                  key="status"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
+                >
+                  <button
+                    onClick={() => setShowStatusCreator(true)}
+                    className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                  >
+                    💭 Share Status
+                  </button>
+                  <div className="border-t pt-4">
+                    <StatusViewer />
+                  </div>
+                </motion.div>
+              )}
+
               {activeTab === 'trending' && (
                 <motion.div
                   key="trending"

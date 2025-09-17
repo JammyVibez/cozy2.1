@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/cn';
 import { useSession } from 'next-auth/react';
 
 interface UserStatus {
@@ -22,7 +21,7 @@ interface UserStatus {
   };
 }
 
-export default function StatusViewer() {
+export function StatusViewer() {
   const [statuses, setStatuses] = useState<UserStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
@@ -45,6 +44,34 @@ export default function StatusViewer() {
     }
   };
 
+  const getMoodEmoji = (mood?: string) => {
+    const moodEmojis: { [key: string]: string } = {
+      'Happy': '😊',
+      'Cool': '😎',
+      'Thinking': '🤔',
+      'Sleepy': '😴',
+      'On Fire': '🔥',
+      'Strong': '💪',
+      'Loved': '❤️',
+      'Celebrating': '🎉'
+    };
+    return moodEmojis[mood || ''] || '😊';
+  };
+
+  const getActivityEmoji = (activity?: string) => {
+    const activityEmojis: { [key: string]: string } = {
+      'Coding': '💻',
+      'Gaming': '🎮',
+      'Reading': '📚',
+      'Listening to Music': '🎵',
+      'Working Out': '🏃',
+      'Having Coffee': '☕',
+      'Eating': '🍕',
+      'Traveling': '✈️'
+    };
+    return activityEmojis[activity || ''] || '🎯';
+  };
+
   const getStatusDisplay = (status: UserStatus) => {
     switch (status.type) {
       case 'mood':
@@ -65,76 +92,36 @@ export default function StatusViewer() {
     }
   };
 
-  const getMoodEmoji = (mood?: string) => {
-    const moodMap: Record<string, string> = {
-      'Happy': '😊',
-      'Cool': '😎',
-      'Thinking': '🤔',
-      'Sleepy': '😴',
-      'On Fire': '🔥',
-      'Strong': '💪',
-      'Loved': '❤️',
-      'Celebrating': '🎉'
-    };
-    return moodMap[mood || ''] || '😊';
-  };
-
-  const getActivityEmoji = (activity?: string) => {
-    const activityMap: Record<string, string> = {
-      'Coding': '💻',
-      'Gaming': '🎮',
-      'Reading': '📚',
-      'Listening to Music': '🎵',
-      'Working Out': '🏃',
-      'Having Coffee': '☕',
-      'Eating': '🍕',
-      'Traveling': '✈️'
-    };
-    return activityMap[activity || ''] || '🎯';
-  };
-
-  const getTimeAgo = (dateString: string) => {
+  const getTimeAgo = (timestamp: string) => {
     const now = new Date();
-    const statusTime = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - statusTime.getTime()) / (1000 * 60));
+    const time = new Date(timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
     
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    
-    return statusTime.toLocaleDateString();
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    return `${Math.floor(diffInSeconds / 86400)}d`;
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-4 bg-muted rounded-xl animate-pulse">
-            <div className="w-12 h-12 bg-muted-foreground/20 rounded-full"></div>
-            <div className="flex-1 space-y-2">
-              <div className="h-4 bg-muted-foreground/20 rounded w-1/3"></div>
-              <div className="h-3 bg-muted-foreground/20 rounded w-2/3"></div>
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-center py-8">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (statuses.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <div className="text-4xl mb-2">👋</div>
-        <p>No status updates yet</p>
-        <p className="text-sm">Be the first to share what you're up to!</p>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">💭</div>
+        <p className="text-sm text-muted-foreground">No status updates yet. Be the first to share what you're up to!</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 max-h-64 overflow-y-auto">
       <AnimatePresence>
         {statuses.map((status) => {
           const display = getStatusDisplay(status);
@@ -144,9 +131,9 @@ export default function StatusViewer() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="flex items-start gap-3 p-4 bg-card border rounded-xl hover:shadow-md transition-shadow"
+              className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                 {status.user.profilePhoto ? (
                   <img 
                     src={status.user.profilePhoto} 
@@ -160,22 +147,15 @@ export default function StatusViewer() {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm">{status.user.name}</span>
-                  <span className="text-xs text-muted-foreground">@{status.user.username}</span>
+                  <span className="font-medium text-xs">{status.user.name}</span>
                   <span className="text-xs text-muted-foreground">•</span>
                   <span className="text-xs text-muted-foreground">{getTimeAgo(status.createdAt)}</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{display.emoji}</span>
-                  <span className="text-sm">{display.text}</span>
+                  <span className="text-sm">{display.emoji}</span>
+                  <span className="text-xs">{display.text}</span>
                 </div>
-                
-                {status.type !== 'text' && (
-                  <div className="text-xs text-muted-foreground mt-1 capitalize">
-                    {status.type} status
-                  </div>
-                )}
               </div>
             </motion.div>
           );
@@ -184,5 +164,3 @@ export default function StatusViewer() {
     </div>
   );
 }
-
-export { StatusViewer };
