@@ -26,7 +26,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const { userId } = await params;
+    const resolvedParams = await params;
+    const { userId } = resolvedParams;
     const updates = await request.json();
 
     // Check if user exists

@@ -202,6 +202,77 @@ export default function AdminUsersPage() {
     },
   });
 
+  const unbanUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to unban user');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      showToast({ title: 'User unbanned successfully', type: 'success' });
+    },
+    onError: (error: Error) => {
+      showToast({ title: 'Error', message: error.message, type: 'error' });
+    },
+  });
+
+  const premiumBadgeMutation = useMutation({
+    mutationFn: async ({ userId, action, badgeType }: { userId: string; action: 'grant' | 'revoke'; badgeType?: string }) => {
+      const response = await fetch(`/api/admin/users/${userId}/premium`, {
+        method: action === 'grant' ? 'POST' : 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: action === 'grant' ? JSON.stringify({ badgeType: badgeType || 'VERIFIED' }) : undefined,
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `Failed to ${action} premium badge`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      showToast({ 
+        title: variables.action === 'grant' ? 'Premium badge granted' : 'Premium badge revoked', 
+        type: 'success' 
+      });
+    },
+    onError: (error: Error) => {
+      showToast({ title: 'Error', message: error.message, type: 'error' });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete user');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      showToast({ title: 'User deleted successfully', type: 'success' });
+    },
+    onError: (error: Error) => {
+      showToast({ title: 'Error', message: error.message, type: 'error' });
+    },
+  });
+
   const handleUserAction = (user: AdminUser, action: string) => {
     setSelectedUser(user);
     
@@ -213,21 +284,49 @@ export default function AdminUsersPage() {
         setShowBanModal(true);
         break;
       case 'unban':
-        updateUserMutation.mutate({
-          userId: user.id,
-          updates: { isBanned: false, isActive: true }
-        });
+        unbanUserMutation.mutate(user.id);
         break;
       case 'verify':
-        updateUserMutation.mutate({
+        premiumBadgeMutation.mutate({
           userId: user.id,
-          updates: { isVerified: true }
+          action: 'grant',
+          badgeType: 'VERIFIED'
         });
         break;
       case 'unverify':
+        premiumBadgeMutation.mutate({
+          userId: user.id,
+          action: 'revoke'
+        });
+        break;
+      case 'suspend':
         updateUserMutation.mutate({
           userId: user.id,
-          updates: { isVerified: false }
+          updates: { 
+            isActive: false,
+            suspendedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+          }
+        });
+        break;
+      case 'unsuspend':
+        updateUserMutation.mutate({
+          userId: user.id,
+          updates: { 
+            isActive: true,
+            suspendedUntil: null
+          }
+        });
+        break;
+      case 'delete':
+        if (confirm(`Are you sure you want to permanently delete ${user.name}? This action cannot be undone.`)) {
+          deleteUserMutation.mutate(user.id);
+        }
+        break;
+      case 'grant-premium':
+        premiumBadgeMutation.mutate({
+          userId: user.id,
+          action: 'grant',
+          badgeType: 'PREMIUM'
         });
         break;
     }
@@ -453,7 +552,7 @@ export default function AdminUsersPage() {
                     </td>
                     
                     <td className="p-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 flex-wrap">
                         <Button
                           size="small"
                           mode="secondary"
@@ -462,13 +561,44 @@ export default function AdminUsersPage() {
                           <Profile className="w-4 h-4" />
                         </Button>
                         
-                        {!user.isVerified && (
+                        {!user.isVerified ? (
                           <Button
                             size="small"
                             onPress={() => handleUserAction(user, 'verify')}
-                            loading={updateUserMutation.isPending}
+                            loading={premiumBadgeMutation.isPending}
+                            className="bg-green-600 hover:bg-green-700"
                           >
-                            <Check className="w-4 h-4" />
+                            ✓
+                          </Button>
+                        ) : (
+                          <Button
+                            size="small"
+                            mode="secondary"
+                            onPress={() => handleUserAction(user, 'unverify')}
+                            loading={premiumBadgeMutation.isPending}
+                          >
+                            ✗
+                          </Button>
+                        )}
+
+                        {!user.isActive && !user.isBanned ? (
+                          <Button
+                            size="small"
+                            mode="secondary"
+                            onPress={() => handleUserAction(user, 'unsuspend')}
+                            loading={updateUserMutation.isPending}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                          >
+                            Unsuspend
+                          </Button>
+                        ) : !user.isBanned && (
+                          <Button
+                            size="small"
+                            onPress={() => handleUserAction(user, 'suspend')}
+                            loading={updateUserMutation.isPending}
+                            className="bg-yellow-600 hover:bg-yellow-700"
+                          >
+                            Suspend
                           </Button>
                         )}
                         
@@ -477,7 +607,7 @@ export default function AdminUsersPage() {
                             size="small"
                             mode="secondary"
                             onPress={() => handleUserAction(user, 'unban')}
-                            loading={updateUserMutation.isPending}
+                            loading={unbanUserMutation.isPending}
                           >
                             Unban
                           </Button>
@@ -490,6 +620,24 @@ export default function AdminUsersPage() {
                             Ban
                           </Button>
                         )}
+
+                        <Button
+                          size="small"
+                          onPress={() => handleUserAction(user, 'grant-premium')}
+                          loading={premiumBadgeMutation.isPending}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          Premium
+                        </Button>
+                        
+                        <Button
+                          size="small"
+                          mode="destructive"
+                          onPress={() => handleUserAction(user, 'delete')}
+                          loading={deleteUserMutation.isPending}
+                        >
+                          <Delete className="w-4 h-4" />
+                        </Button>
                       </div>
                     </td>
                   </tr>

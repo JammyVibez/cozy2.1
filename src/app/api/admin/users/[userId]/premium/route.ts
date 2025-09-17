@@ -139,3 +139,131 @@ export async function DELETE(
     );
   }
 }
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma/prisma';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check admin privileges
+    const adminUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true }
+    });
+    
+    const isAdmin = adminUser?.role === 'ADMIN' || 
+                   adminUser?.email === process.env.ADMIN_EMAIL;
+    
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const resolvedParams = await params;
+    const { userId } = resolvedParams;
+    const { badgeType = 'VERIFIED', expiresAt } = await request.json();
+
+    // Check if user exists
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!targetUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Create or update premium badge
+    const premiumBadge = await prisma.premiumBadge.upsert({
+      where: { userId },
+      create: {
+        userId,
+        type: badgeType,
+        isActive: true,
+        grantedBy: session.user.id,
+        expiresAt: expiresAt ? new Date(expiresAt) : null
+      },
+      update: {
+        type: badgeType,
+        isActive: true,
+        grantedBy: session.user.id,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        updatedAt: new Date()
+      }
+    });
+
+    // Also update user verification status
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isVerified: true }
+    });
+
+    return NextResponse.json({
+      success: true,
+      premiumBadge,
+      message: 'Premium badge assigned successfully'
+    });
+  } catch (error) {
+    console.error('Error assigning premium badge:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check admin privileges
+    const adminUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true }
+    });
+    
+    const isAdmin = adminUser?.role === 'ADMIN' || 
+                   adminUser?.email === process.env.ADMIN_EMAIL;
+    
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const resolvedParams = await params;
+    const { userId } = resolvedParams;
+
+    // Remove premium badge
+    await prisma.premiumBadge.deleteMany({
+      where: { userId }
+    });
+
+    // Update user verification status
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isVerified: false }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Premium badge removed successfully'
+    });
+  } catch (error) {
+    console.error('Error removing premium badge:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
