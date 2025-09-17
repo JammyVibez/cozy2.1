@@ -37,3 +37,7 @@ next-env.d.ts
 
 # custom
 /public/uploads
+
+# Replit (development only)
+.replit
+replit.nix

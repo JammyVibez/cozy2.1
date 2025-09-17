@@ -16,7 +16,11 @@ export async function getProfile(username: string) {
 
   // Use the id to fetch from the /api/users/:userId endpoint
   try {
-    const baseUrl = process.env.URL || process.env.NEXTAUTH_URL || 'http://localhost:5000';
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : (process.env.NEXTAUTH_URL && process.env.NEXTAUTH_URL.startsWith('http')) 
+        ? process.env.NEXTAUTH_URL
+        : (process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '');
     const res = await fetch(`${baseUrl}/api/users/${check.id}`, {
       headers: {
         'Content-Type': 'application/json',

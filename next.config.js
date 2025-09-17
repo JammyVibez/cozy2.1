@@ -3,9 +3,7 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
   },
-  // Allow requests from Replit domains
-  allowedDevOrigins: ['*.replit.com', '*.repl.co', '*.replit.dev'],
-  // Allow iframe embedding for Replit proxy environment
+  // Production-ready security headers
   async headers() {
     return [
       {
@@ -13,11 +11,19 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'ALLOWALL',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
           },
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors 'self' *.replit.com *.repl.co *.replit.dev;",
+            value: "frame-ancestors 'self';",
           },
         ],
       },
