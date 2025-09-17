@@ -10,8 +10,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check admin privileges
-    const isAdmin = session.user.email === process.env.ADMIN_EMAIL;
+    // SECURITY FIX: Check admin privileges using only role field or ADMIN_EMAIL
+    const adminUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true }
+    });
+
+    const isAdmin = adminUser?.role === 'ADMIN' || 
+                   adminUser?.email === process.env.ADMIN_EMAIL;
+    
     if (!isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
@@ -31,6 +38,22 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // Apply role filter
+    if (role !== 'ALL') {
+      where.role = role;
+    }
+
+    // Apply status filter
+    if (status === 'ACTIVE') {
+      where.isActive = true;
+      where.isBanned = false;
+    } else if (status === 'BANNED') {
+      where.isBanned = true;
+    } else if (status === 'INACTIVE') {
+      where.isActive = false;
+    }
+
+    // FIX: Use proper Prisma query without mixing select and include
     const users = await prisma.user.findMany({
       where,
       select: {
@@ -39,17 +62,25 @@ export async function GET(request: NextRequest) {
         username: true,
         email: true,
         profilePhoto: true,
-        createdAt: true,
+        role: true,
+        isVerified: true,
+        isActive: true,
+        isBanned: true,
+        banReason: true,
+        bannedAt: true,
+        suspendedUntil: true,
         lastLoginAt: true,
+        emailVerified: true,
         _count: {
           select: {
-            posts: true,
+            post: true,
             followers: true,
-            following: true
+            following: true,
+            communityMemberships: true
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { id: 'asc' }
     });
 
     const formattedUsers = users.map(user => ({
@@ -58,17 +89,19 @@ export async function GET(request: NextRequest) {
       username: user.username,
       email: user.email,
       profilePhoto: user.profilePhoto,
-      isVerified: false, // Add verification logic
-      isActive: true, // Add active status logic
-      isBanned: false, // Add ban status logic
-      role: 'USER', // Add role logic
-      createdAt: user.createdAt.toISOString(),
+      isVerified: user.isVerified || !!user.emailVerified,
+      isActive: user.isActive,
+      isBanned: user.isBanned,
+      role: user.role,
+      banReason: user.banReason,
+      bannedAt: user.bannedAt?.toISOString(),
+      suspendedUntil: user.suspendedUntil?.toISOString(),
       lastLoginAt: user.lastLoginAt?.toISOString(),
       stats: {
-        posts: user._count.posts,
+        posts: user._count.post,
         followers: user._count.followers,
         following: user._count.following,
-        communities: 0 // Add community count
+        communities: user._count.communityMemberships
       }
     }));
 

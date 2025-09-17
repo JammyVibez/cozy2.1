@@ -13,8 +13,15 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check admin privileges
-    const isAdmin = session.user.email === process.env.ADMIN_EMAIL;
+    // SECURITY FIX: Check admin privileges using only role field or ADMIN_EMAIL
+    const adminUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true, email: true }
+    });
+    
+    const isAdmin = adminUser?.role === 'ADMIN' || 
+                   adminUser?.email === process.env.ADMIN_EMAIL;
+    
     if (!isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
@@ -26,21 +33,55 @@ export async function POST(
       return NextResponse.json({ error: 'Ban reason is required' }, { status: 400 });
     }
 
-    // Check if user exists
+    // Check if user exists and is not already banned
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        isBanned: true,
+        role: true
+      }
     });
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // In a real implementation, you'd add ban logic here
-    // For now, just return success
+    if (user.isBanned) {
+      return NextResponse.json({ error: 'User is already banned' }, { status: 400 });
+    }
+
+    // Don't allow banning other admins
+    if (user.role === 'ADMIN') {
+      return NextResponse.json({ error: 'Cannot ban admin users' }, { status: 403 });
+    }
+
+    // Ban the user
+    const bannedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isBanned: true,
+        banReason: reason.trim(),
+        bannedAt: new Date(),
+        bannedBy: session.user.id,
+        isActive: false
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        isBanned: true,
+        banReason: true,
+        bannedAt: true
+      }
+    });
     
     return NextResponse.json({
       success: true,
-      message: 'User banned successfully'
+      user: bannedUser,
+      message: `User ${user.username || user.name} has been banned successfully`
     });
   } catch (error) {
     console.error('Error banning user:', error);

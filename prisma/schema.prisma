@@ -55,6 +55,17 @@ model User {
   emailVerified      DateTime?
   image              String?
   preferredTheme     String?             @default("default")
+  
+  // Admin management fields
+  role               UserRole            @default(USER)
+  isVerified         Boolean             @default(false)
+  isActive           Boolean             @default(true)
+  isBanned           Boolean             @default(false)
+  banReason          String?
+  bannedAt           DateTime?
+  bannedBy           String?
+  suspendedUntil     DateTime?
+  lastLoginAt        DateTime?
   accounts           Account[]
   sessions           Session[]
   profilePhoto       String?
@@ -257,6 +268,12 @@ enum RelationshipStatus {
   IN_A_RELATIONSHIP
   ENGAGED
   MARRIED
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
 }
 
 model Chat {
