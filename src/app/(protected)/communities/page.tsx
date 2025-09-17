@@ -1,28 +1,26 @@
 
-import { ComingSoon } from '@/components/ComingSoon';
+import { CommunityDiscovery } from '@/components/CommunityDiscovery';
+import { CreateCommunityButton } from '@/components/CreateCommunityButton';
 
 export const metadata = {
-  title: 'Communities - Coming Soon',
-  description: 'Advanced community features with template marketplace, bot ecosystem, and developer extensibility are being built',
+  title: 'Communities - Munia',
+  description: 'Discover and join communities',
 };
 
 export default function CommunitiesPage() {
   return (
-    <ComingSoon
-      title="Community Platform Coming Soon"
-      description="We're building a modular, template-driven community platform that combines the simplicity of pre-built templates with the power of fully custom, developer-extendable imports and a bot/plugin ecosystem."
-      features={[
-        "Template Marketplace - Install pre-built community templates",
-        "Drag & Drop Community Customizer",
-        "Bot Marketplace with JS/Python SDK",
-        "Secure Plugin Runtime & Sandboxing",
-        "Custom Import System for Developer Packages",
-        "Real-time Chat & Presence",
-        "Community Analytics Dashboard", 
-        "Role-based Permissions & Moderation Tools",
-        "Monetization for Templates & Bots",
-        "White-label & Enterprise Features"
-      ]}
-    />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Communities</h1>
+          <p className="text-muted-foreground">
+            Discover communities that match your interests
+          </p>
+        </div>
+        <CreateCommunityButton />
+      </div>
+      
+      <CommunityDiscovery />
+    </div>
   );
 }
