@@ -31,6 +31,15 @@ const CUSTOMIZATION_CATEGORIES = [
   { key: 'text-designs', label: 'Text Designs', icon: '✨', description: 'Rich text styling options' },
 ];
 
+// Map category keys to CosmeticType enum values
+const CATEGORY_TO_TYPE_MAP: Record<string, string> = {
+  'themes': 'THEME',
+  'post-skins': 'POST_SKIN',
+  'comment-flairs': 'COMMENT_FLAIR',
+  'chat-themes': 'CHAT_THEME',
+  'text-designs': 'TEXT_DESIGN'
+};
+
 export function CommunityCustomization({ 
   communityId, 
   isAdmin = false, 
@@ -43,9 +52,14 @@ export function CommunityCustomization({
   const [applyingId, setApplyingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCommunityCosmetics();
+    if (isAdmin) {
+      fetchCommunityCosmetics();
+    }
+  }, [communityId, isAdmin]);
+
+  useEffect(() => {
     fetchAvailableCosmetics();
-  }, [communityId]);
+  }, [activeCategory]);
 
   const fetchCommunityCosmetics = async () => {
     try {
@@ -60,8 +74,10 @@ export function CommunityCustomization({
   };
 
   const fetchAvailableCosmetics = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`/api/cosmetics?category=${activeCategory}`);
+      const cosmeticType = CATEGORY_TO_TYPE_MAP[activeCategory];
+      const response = await fetch(`/api/cosmetics?type=${cosmeticType}`);
       if (response.ok) {
         const data = await response.json();
         setAvailableCosmetics(data.cosmetics || []);

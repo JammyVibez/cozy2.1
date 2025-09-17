@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
+    const category = searchParams.get('category');
 
-    const whereClause = type ? { type: type as any } : {};
+    const whereClause = type ? { type: type as any } : category ? { type: category as any } : {};
 
     const cosmetics = await prisma.cosmetic.findMany({
       where: whereClause,
