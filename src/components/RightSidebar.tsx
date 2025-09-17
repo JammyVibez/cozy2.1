@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,6 +7,7 @@ import { getPusherClient } from '@/lib/pusher/pusherClientSide';
 import { useToast } from '@/hooks/useToast';
 import { StatusCreator } from './StatusCreator';
 import { StatusViewer } from './StatusViewer';
+import { Switch } from '@/components/ui/Switch';
 
 interface TrendingUser {
   id: string;

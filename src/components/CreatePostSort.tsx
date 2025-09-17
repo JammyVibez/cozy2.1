@@ -1,86 +1,113 @@
+
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  MeasuringStrategy,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { GetVisualMedia } from '@/types/definitions';
-import { CreatePostSortItem } from './CreatePostSortItem';
+import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
-const measuringConfig = {
-  droppable: {
-    strategy: MeasuringStrategy.Always,
-  },
-};
-const modifiers = [restrictToParentElement];
+interface PostSortItem {
+  id: string;
+  content: string;
+  type: 'text' | 'image' | 'video';
+}
 
-export function CreatePostSort({
-  visualMedia,
-  setVisualMedia,
-}: {
-  visualMedia: GetVisualMedia[];
-  setVisualMedia: React.Dispatch<React.SetStateAction<GetVisualMedia[]>>;
-}) {
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
+export function CreatePostSort() {
+  const [items, setItems] = useState<PostSortItem[]>([
+    { id: '1', content: 'First text block', type: 'text' },
+    { id: '2', content: 'https://example.com/image.jpg', type: 'image' },
+    { id: '3', content: 'Another text block', type: 'text' },
+  ]);
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
+  const moveItem = (fromIndex: number, toIndex: number) => {
+    const newItems = [...items];
+    const [movedItem] = newItems.splice(fromIndex, 1);
+    newItems.splice(toIndex, 0, movedItem);
+    setItems(newItems);
+  };
 
-      if (active.id !== over?.id) {
-        setVisualMedia((items) => {
-          // Find the index by matching the id of the Sortable against the `url` of GetVisualMedia.
-          const oldIndex = items.findIndex((item) => item.url === active.id);
-          const newIndex = items.findIndex((item) => item.url === over?.id);
-
-          return arrayMove(items, oldIndex, newIndex);
-        });
-      }
-    },
-    [setVisualMedia],
-  );
-
-  const handleRemove = useCallback(
-    (id: string) => {
-      // Release the object URL when removed
-      if (id.startsWith('blob:')) URL.revokeObjectURL(id);
-
-      setVisualMedia((items) => items.filter((item) => item.url !== id));
-    },
-    [setVisualMedia],
-  );
-
-  // The `url` of <GetVisualMedia> will serve as the ID's of the <SortableContext>.
-  const itemIds = useMemo(() => visualMedia.map((item) => item.url), [visualMedia]);
+  const addTextBlock = () => {
+    const newItem: PostSortItem = {
+      id: Date.now().toString(),
+      content: 'New text block',
+      type: 'text'
+    };
+    setItems([...items, newItem]);
+  };
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      modifiers={modifiers}
-      measuring={measuringConfig}>
-      <div className="grid grid-cols-2 gap-2 border-t border-t-border p-2">
-        <SortableContext items={itemIds} strategy={rectSortingStrategy}>
-          {visualMedia.map((item) => (
-            <CreatePostSortItem key={item.url} url={item.url} type={item.type} onRemove={handleRemove} />
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>Create & Organize Post</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <div
+              key={item.id}
+              className="border rounded-lg p-4 bg-background hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  {item.type === 'text' && (
+                    <textarea
+                      value={item.content}
+                      onChange={(e) => {
+                        const newItems = [...items];
+                        newItems[index].content = e.target.value;
+                        setItems(newItems);
+                      }}
+                      className="w-full border rounded px-3 py-2 resize-none"
+                      rows={3}
+                    />
+                  )}
+                  {item.type === 'image' && (
+                    <div className="text-sm text-muted-foreground">
+                      📷 Image: {item.content}
+                    </div>
+                  )}
+                  {item.type === 'video' && (
+                    <div className="text-sm text-muted-foreground">
+                      🎥 Video: {item.content}
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1 ml-4">
+                  <button
+                    onClick={() => index > 0 && moveItem(index, index - 1)}
+                    disabled={index === 0}
+                    className="px-2 py-1 text-xs border rounded disabled:opacity-50"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => index < items.length - 1 && moveItem(index, index + 1)}
+                    disabled={index === items.length - 1}
+                    className="px-2 py-1 text-xs border rounded disabled:opacity-50"
+                  >
+                    ↓
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </SortableContext>
-      </div>
-    </DndContext>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button onClick={addTextBlock} variant="outline">
+            Add Text Block
+          </Button>
+          <Button variant="outline">
+            Add Image
+          </Button>
+          <Button variant="outline">
+            Add Video
+          </Button>
+        </div>
+        
+        <Button className="w-full">
+          Publish Post
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
