@@ -98,3 +98,68 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma/prisma';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const active = searchParams.get('active') === 'true';
+    const limit = parseInt(searchParams.get('limit') || '20');
+
+    const communities = await prisma.community.findMany({
+      where: active ? {
+        // Consider a community active if it has recent activity
+        posts: {
+          some: {
+            createdAt: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+            }
+          }
+        }
+      } : undefined,
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePhoto: true
+          }
+        },
+        _count: {
+          select: {
+            members: true,
+            posts: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit
+    });
+
+    const formattedCommunities = communities.map(community => ({
+      id: community.id,
+      name: community.name,
+      description: community.description,
+      category: community.category,
+      avatar: community.avatar,
+      memberCount: community._count.members,
+      postCount: community._count.posts,
+      onlineMembers: Math.floor(community._count.members * 0.1), // Mock online members
+      isActive: community._count.posts > 0,
+      creator: community.creator
+    }));
+
+    return NextResponse.json({ communities: formattedCommunities });
+  } catch (error) {
+    console.error('Error fetching communities:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

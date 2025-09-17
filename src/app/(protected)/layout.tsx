@@ -1,6 +1,7 @@
 import { MenuBar } from '@/components/MenuBar';
 import { ResponsiveContainer } from '@/components/ui/ResponsiveContainer';
 import { RealtimeChat } from '@/components/RealtimeChat';
+import { RightSidebar } from '@/components/RightSidebar';
 import { useCheckIfRequiredFieldsArePopulated } from '@/hooks/useCheckIfRequiredFieldsArePopulated';
 import React from 'react';
 
@@ -10,10 +11,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
   await useCheckIfRequiredFieldsArePopulated();
 
   return (
-    <div className="md:flex md:justify-center md:gap-2">
+    <div className="md:flex md:justify-center md:gap-4 max-w-7xl mx-auto">
       <MenuBar />
 
-      <ResponsiveContainer className="pb-20 md:pb-4">{children}</ResponsiveContainer>
+      <ResponsiveContainer className="pb-20 md:pb-4 flex-1">{children}</ResponsiveContainer>
+      
+      <RightSidebar />
       
       <RealtimeChat />
     </div>

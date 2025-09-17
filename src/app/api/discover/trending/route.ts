@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/prisma';
 import { auth } from "@/auth"; // your NextAuth config wrapper
@@ -72,5 +71,78 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching trending posts:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// Create trending users API endpoint
+export async function GET() {
+  try {
+    // Get trending users based on recent activity, followers, and engagement
+    const trendingUsers = await prisma.user.findMany({
+      where: {
+        AND: [
+          {
+            post: {
+              some: {
+                createdAt: {
+                  gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+                }
+              }
+            }
+          },
+          {
+            followers: {
+              some: {}
+            }
+          }
+        ]
+      },
+      include: {
+        _count: {
+          select: {
+            followers: true,
+            post: {
+              where: {
+                createdAt: {
+                  gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                }
+              }
+            },
+            postLikes: {
+              where: {
+                createdAt: {
+                  gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                }
+              }
+            }
+          }
+        },
+        premiumBadge: true
+      },
+      orderBy: [
+        { followers: { _count: 'desc' } },
+        { post: { _count: 'desc' } }
+      ],
+      take: 10
+    });
+
+    const formattedUsers = trendingUsers.map(user => ({
+      id: user.id,
+      username: user.username || `user_${user.id.slice(0, 8)}`,
+      name: user.name || 'Anonymous User',
+      profilePhoto: user.profilePhoto,
+      followers: user._count.followers,
+      isVerified: !!user.premiumBadge,
+      recentPosts: user._count.post,
+      recentLikes: user._count.postLikes
+    }));
+
+    return NextResponse.json({ users: formattedUsers });
+  } catch (error) {
+    console.error('Error fetching trending users:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
