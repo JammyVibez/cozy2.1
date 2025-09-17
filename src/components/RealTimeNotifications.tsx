@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { pusherClient } from '@/lib/pusher/pusherClientSide';
+import { getPusherClient } from '@/lib/pusher/pusherClientSide';
 
 interface Notification {
   id: string;
@@ -26,6 +26,7 @@ export function RealTimeNotifications() {
   useEffect(() => {
     if (!session?.user?.id) return;
 
+    const pusherClient = getPusherClient();
     const channel = pusherClient.subscribe(`user-${session.user.id}`);
     
     channel.bind('notification', (data: Notification) => {
@@ -39,7 +40,7 @@ export function RealTimeNotifications() {
     });
 
     return () => {
-      pusherClient.unsubscribe(`user-${session.user.id}`);
+      getPusherClient().unsubscribe(`user-${session.user.id}`);
     };
   }, [session?.user?.id]);
 

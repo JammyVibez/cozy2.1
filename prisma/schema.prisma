@@ -97,6 +97,9 @@ model User {
   commentDesigns     CommentTextDesign[]
   chatDesigns        ChatTextDesign[]
   purchasedTemplates UserTextDesignTemplate[]
+  
+  // Status relationship
+  statuses           UserStatus[]
 }
 
 model VerificationToken {
@@ -732,4 +735,28 @@ enum ThemeCategory {
   MINIMAL
   GAMING
   PROFESSIONAL
+}
+
+// User Status Model
+model UserStatus {
+  id        String   @id @default(cuid())
+  userId    String
+  type      StatusType
+  text      String?
+  mood      String?
+  activity  String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+enum StatusType {
+  text
+  mood
+  activity
 }

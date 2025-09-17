@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -202,7 +201,7 @@ export function RightSidebar() {
             ? { ...i, isConnected: !i.isConnected }
             : i
         ));
-        
+
         showToast({
           title: integration.isConnected ? 'Disconnected' : 'Connected',
           message: `${integration.name} has been ${integration.isConnected ? 'disconnected' : 'connected'}`,

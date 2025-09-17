@@ -12,3 +12,6 @@ export const getPusherClient = () => {
   }
   return pusherClient;
 };
+
+// Export the client directly for backward compatibility
+export { pusherClient };
