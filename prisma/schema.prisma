@@ -115,6 +115,10 @@ model User {
   
   // External integrations relationship
   externalIntegrations ExternalIntegration[]
+  
+  // Report relationships (missing fields)
+  reportedBy      Report[]        @relation("UserReports")
+  moderatedReports ReportAction[] @relation("ModeratorActions")
 }
 
 model VerificationToken {
@@ -149,9 +153,7 @@ model Post {
   communityPost CommunityPost?
 
   
-  // Report relationships
-  reports         Report[]        @relation("UserReports")
-  moderatorActions ReportAction[] @relation("ModeratorActions")
+  
 
   pinnedIn      CommunityPinnedPost[]
   
@@ -856,7 +858,7 @@ model Report {
   updatedAt   DateTime     @updatedAt
   
   // Reporter relationship
-  reporter    User         @relation("UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  reporter    User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   reporterId  String
   
   // Moderation action (if any)
@@ -875,7 +877,7 @@ model ReportAction {
   actionDate  DateTime   @default(now())
   
   // Moderator relationship
-  moderator   User       @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
+  moderator   User       @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
   moderatorId String
   
   // Report relationship
