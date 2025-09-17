@@ -130,41 +130,38 @@ export function RightSidebar() {
   };
 
   const fetchIntegrations = async () => {
-    const mockIntegrations: Integration[] = [
-      {
-        id: 'discord',
-        name: 'Discord',
-        description: 'Connect your Discord servers',
-        icon: '🎮',
-        isConnected: false,
-        category: 'social'
-      },
-      {
-        id: 'github',
-        name: 'GitHub',
-        description: 'Share your repositories',
-        icon: '⚡',
-        isConnected: true,
-        category: 'developer'
-      },
-      {
-        id: 'spotify',
-        name: 'Spotify',
-        description: 'Share what you\'re listening to',
-        icon: '🎵',
-        isConnected: false,
-        category: 'social'
-      },
-      {
-        id: 'notion',
-        name: 'Notion',
-        description: 'Embed your Notion pages',
-        icon: '📝',
-        isConnected: false,
-        category: 'productivity'
+    try {
+      const response = await fetch('/api/integrations');
+      if (response.ok) {
+        const data = await response.json();
+        // Focus on the most important integrations for the sidebar
+        const priorityIntegrations = data.integrations.filter((integration: Integration) => 
+          ['discord', 'github', 'tradingview', 'spotify'].includes(integration.id)
+        );
+        setIntegrations(priorityIntegrations || []);
       }
-    ];
-    setIntegrations(mockIntegrations);
+    } catch (error) {
+      console.error('Error fetching integrations:', error);
+      // Fallback to a minimal set on error
+      setIntegrations([
+        {
+          id: 'discord',
+          name: 'Discord',
+          description: 'Connect your Discord servers',
+          icon: '🎮',
+          isConnected: false,
+          category: 'social'
+        },
+        {
+          id: 'github',
+          name: 'GitHub',
+          description: 'Share your repositories',
+          icon: '⚡',
+          isConnected: false,
+          category: 'developer'
+        }
+      ]);
+    }
   };
 
   const handleIntegrationToggle = async (integrationId: string) => {
@@ -179,17 +176,20 @@ export function RightSidebar() {
       });
 
       if (response.ok) {
-        setIntegrations(prev => prev.map(i => 
-          i.id === integrationId 
-            ? { ...i, isConnected: !i.isConnected }
-            : i
-        ));
+        const result = await response.json();
+        if (result.success) {
+          setIntegrations(prev => prev.map(i => 
+            i.id === integrationId 
+              ? { ...i, isConnected: !i.isConnected }
+              : i
+          ));
 
-        showToast({
-          title: integration.isConnected ? 'Disconnected' : 'Connected',
-          message: `${integration.name} has been ${integration.isConnected ? 'disconnected' : 'connected'}`,
-          type: 'success'
-        });
+          showToast({
+            title: integration.isConnected ? 'Disconnected' : 'Connected',
+            message: `${integration.name} has been ${integration.isConnected ? 'disconnected' : 'connected'}`,
+            type: 'success'
+          });
+        }
       }
     } catch (error) {
       console.error('Error toggling integration:', error);

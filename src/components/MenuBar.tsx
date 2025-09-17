@@ -37,6 +37,11 @@ export function MenuBar() {
           route: '/discover',
         },
         {
+          title: 'Apps',
+          Icon: Other,
+          route: '/integrations',
+        },
+        {
           title: 'Notifications',
           Icon: NotificationBell,
           route: '/notifications',
