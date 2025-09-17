@@ -1,9 +1,9 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useEnhancedTheme } from '@/contexts/EnhancedThemeContext';
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
-import { Heart, Comment, DeviceLaptop, TwoPeople, ActionsPlus, WorldNet } from '@/svg_components';
 
 interface ComingSoonProps {
   title?: string;
@@ -12,12 +12,12 @@ interface ComingSoonProps {
   className?: string;
 }
 
-export function ComingSoon({ 
-  title = "Community Features Coming Soon", 
+export function ComingSoon({
+  title = "Community Features Coming Soon",
   description = "We're building amazing community features that will transform how you connect and collaborate.",
   features = [
     "Real-time Community Chat Rooms",
-    "Advanced Community Moderation Tools", 
+    "Advanced Community Moderation Tools",
     "Community Events & Scheduling",
     "File Sharing & Media Galleries",
     "Voice & Video Chat Integration",
@@ -25,11 +25,8 @@ export function ComingSoon({
     "Community Analytics Dashboard",
     "Cross-Platform Notifications"
   ],
-  className 
+  className
 }: ComingSoonProps) {
-  const { theme } = useEnhancedTheme();
-  const { variant, actualMode } = theme;
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -54,190 +51,114 @@ export function ComingSoon({
   };
 
   return (
-    <div 
-      className={cn(
-        "min-h-screen flex items-center justify-center p-6",
-        "bg-gradient-to-br from-background via-muted/20 to-background",
-        `theme-${variant}-coming-soon`,
-        actualMode,
-        className
-      )}
-      data-theme={variant}
-    >
+    <div className={cn(
+      "min-h-screen bg-gradient-to-br from-background via-muted/20 to-background",
+      "flex items-center justify-center p-6",
+      className
+    )}>
       <motion.div
-        className={cn(
-          "max-w-4xl w-full text-center space-y-8",
-          "bg-card/60 backdrop-blur-sm border border-border/40 rounded-3xl p-8 md:p-12",
-          "shadow-2xl",
-          `theme-${variant}-card`
-        )}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        data-theme={variant}
+        className="max-w-4xl mx-auto text-center"
       >
-        {/* Animated Icon */}
+        {/* Main Icon */}
         <motion.div
-          className="relative"
           variants={itemVariants}
+          className="text-8xl mb-8 select-none"
         >
-          <div className="flex justify-center items-center space-x-4 mb-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className={cn(
-                "p-4 rounded-full",
-                "bg-gradient-to-r from-primary/20 to-accent/20",
-                "border border-primary/30"
-              )}
-            >
-              <TwoPeople className="w-12 h-12 text-primary" />
-            </motion.div>
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className={cn(
-                "p-4 rounded-full",
-                "bg-gradient-to-r from-accent/20 to-primary/20", 
-                "border border-accent/30"
-              )}
-            >
-              <Comment className="w-12 h-12 text-accent-foreground" />
-            </motion.div>
-          </div>
+          🚀
         </motion.div>
 
         {/* Title */}
         <motion.h1
-          className={cn(
-            "text-4xl md:text-6xl font-bold",
-            "bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent",
-            `theme-${variant}-heading`
-          )}
           variants={itemVariants}
+          className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
         >
           {title}
         </motion.h1>
 
         {/* Description */}
         <motion.p
-          className={cn(
-            "text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto",
-            `theme-${variant}-text`
-          )}
           variants={itemVariants}
+          className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed"
         >
           {description}
         </motion.p>
 
-        {/* Construction Animation */}
+        {/* Features Grid */}
         <motion.div
-          className="flex justify-center space-x-2 py-4"
           variants={itemVariants}
-        >
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity, 
-                delay: i * 0.5 
-              }}
-              className="text-4xl"
-            >
-              🚧
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Features Preview */}
-        <motion.div
-          className="grid md:grid-cols-2 gap-4 mt-12"
-          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto"
         >
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className={cn(
-                "flex items-center space-x-3 p-4 rounded-xl",
-                "bg-muted/40 border border-border/20",
-                "text-left",
-                `theme-${variant}-feature-item`
-              )}
               variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              data-theme={variant}
+              className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 hover:bg-card/80 transition-all duration-300 hover:scale-105"
             >
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                "bg-primary/20 text-primary"
-              )}>
-                <span className="text-sm font-bold">✓</span>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">✨</span>
+                </div>
+                <span className="text-lg font-medium text-left">{feature}</span>
               </div>
-              <span className="text-foreground font-medium">{feature}</span>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Timeline */}
+        {/* CTA Buttons */}
         <motion.div
-          className={cn(
-            "mt-12 p-6 rounded-2xl",
-            "bg-gradient-to-r from-primary/10 to-accent/10",
-            "border border-primary/20",
-            `theme-${variant}-timeline`
-          )}
           variants={itemVariants}
-          data-theme={variant}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <h3 className="text-2xl font-bold text-foreground mb-4">Development Timeline</h3>
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-8">
-            <div className="text-center">
-              <div className="text-3xl mb-2">🎯</div>
-              <div className="font-semibold text-foreground">Phase 1</div>
-              <div className="text-sm text-muted-foreground">Chat Rooms</div>
-              <div className="text-xs text-primary font-medium">Q1 2025</div>
-            </div>
-            <div className="hidden md:block w-8 h-0.5 bg-border"></div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">🛠️</div>
-              <div className="font-semibold text-foreground">Phase 2</div>
-              <div className="text-sm text-muted-foreground">Moderation Tools</div>
-              <div className="text-xs text-muted-foreground">Q2 2025</div>
-            </div>
-            <div className="hidden md:block w-8 h-0.5 bg-border"></div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">🚀</div>
-              <div className="font-semibold text-foreground">Phase 3</div>
-              <div className="text-sm text-muted-foreground">Advanced Features</div>
-              <div className="text-xs text-muted-foreground">Q3 2025</div>
-            </div>
-          </div>
+          <Link
+            href="/communities"
+            className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-xl font-semibold hover:scale-105 transition-transform duration-200 shadow-lg hover:shadow-xl"
+          >
+            Explore Communities
+          </Link>
+
+          <Link
+            href="/feed"
+            className="px-8 py-4 border-2 border-primary text-primary rounded-xl font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+          >
+            Back to Feed
+          </Link>
         </motion.div>
 
-        {/* Call to Action */}
+        {/* Progress Indicator */}
         <motion.div
-          className="pt-8"
           variants={itemVariants}
+          className="mt-16 p-6 bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl"
         >
-          <motion.button
-            className={cn(
-              "px-8 py-4 rounded-xl font-semibold text-lg",
-              "bg-gradient-to-r from-primary to-accent",
-              "text-primary-foreground shadow-lg",
-              "transition-all duration-200",
-              `theme-${variant}-cta-button`
-            )}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            data-theme={variant}
-          >
-            Stay Updated 📬
-          </motion.button>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Get notified when these features become available
+          <h3 className="text-xl font-semibold mb-4">Development Progress</h3>
+          <div className="w-full bg-muted rounded-full h-3 mb-2">
+            <div className="bg-gradient-to-r from-primary to-accent h-3 rounded-full transition-all duration-1000 ease-out" style={{ width: '75%' }}></div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            75% Complete • Expected Launch: Q2 2024
           </p>
+        </motion.div>
+
+        {/* Newsletter Signup */}
+        <motion.div
+          variants={itemVariants}
+          className="mt-12"
+        >
+          <p className="text-muted-foreground mb-4">
+            Want to be notified when these features launch?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg border border-border bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+              Notify Me
+            </button>
+          </div>
         </motion.div>
       </motion.div>
     </div>

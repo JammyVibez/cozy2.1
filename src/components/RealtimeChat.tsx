@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +14,7 @@ import {
   TwoPeople,
   DeviceLaptop
 } from '@/svg_components';
+import { useToast } from '@/hooks/useToast';
 
 interface Message {
   id: string;
@@ -58,8 +60,10 @@ export function RealtimeChat() {
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const { showToast } = useToast();
 
   // Fetch chats
   useEffect(() => {
@@ -73,67 +77,98 @@ export function RealtimeChat() {
     if (!session?.user?.id) return;
 
     const pusherClient = getPusherClient();
-    const channel = pusherClient.subscribe(`user-${session.user.id}`);
-    const presenceChannel = pusherClient.subscribe('presence-online-users');
-
-    // Listen for new messages
-    channel.bind('new-message', (data: Message & { chatId: string }) => {
-      setMessages(prev => {
-        if (activeChat === data.chatId) {
-          return [...prev, data];
-        }
-        return prev;
-      });
+    
+    try {
+      setConnectionStatus('connecting');
       
-      // Update chat list with new last message
-      setChats(prev => prev.map(chat => 
-        chat.id === data.chatId 
-          ? { ...chat, lastMessage: data, unreadCount: chat.unreadCount + 1 }
-          : chat
-      ));
-    });
+      const userChannel = pusherClient.subscribe(`private-user-${session.user.id}`);
+      const presenceChannel = pusherClient.subscribe('presence-online-users');
 
-    // Listen for typing indicators
-    channel.bind('user-typing', (data: TypingUser) => {
-      setTypingUsers(prev => {
-        const filtered = prev.filter(user => 
-          !(user.userId === data.userId && user.chatId === data.chatId)
-        );
-        return [...filtered, data];
+      // Connection status
+      pusherClient.connection.bind('connected', () => {
+        setConnectionStatus('connected');
       });
 
-      // Remove typing indicator after timeout
-      setTimeout(() => {
-        setTypingUsers(prev => prev.filter(user => 
-          !(user.userId === data.userId && user.chatId === data.chatId)
+      pusherClient.connection.bind('disconnected', () => {
+        setConnectionStatus('disconnected');
+      });
+
+      pusherClient.connection.bind('error', (error: any) => {
+        console.error('Pusher connection error:', error);
+        setConnectionStatus('disconnected');
+        showToast({
+          title: 'Connection Error',
+          message: 'Real-time features may not work properly',
+          type: 'error'
+        });
+      });
+
+      // Listen for new messages
+      userChannel.bind('new-message', (data: Message & { chatId: string }) => {
+        if (activeChat === data.chatId) {
+          setMessages(prev => [...prev, data]);
+        }
+        
+        // Update chat list with new last message
+        setChats(prev => prev.map(chat => 
+          chat.id === data.chatId 
+            ? { ...chat, lastMessage: data, unreadCount: chat.unreadCount + 1 }
+            : chat
         ));
-      }, 3000);
-    });
-
-    // Listen for online status updates
-    presenceChannel.bind('pusher:subscription_succeeded', (members: any) => {
-      const userIds = new Set(Object.keys(members.members));
-      setOnlineUsers(userIds);
-    });
-
-    presenceChannel.bind('pusher:member_added', (member: any) => {
-      setOnlineUsers(prev => new Set([...prev, member.id]));
-    });
-
-    presenceChannel.bind('pusher:member_removed', (member: any) => {
-      setOnlineUsers(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(member.id);
-        return newSet;
       });
-    });
 
-    return () => {
-      const pusherClient = getPusherClient();
-      pusherClient.unsubscribe(`user-${session.user.id}`);
-      pusherClient.unsubscribe('presence-online-users');
-    };
-  }, [session, activeChat]);
+      // Listen for typing indicators
+      userChannel.bind('user-typing', (data: TypingUser) => {
+        setTypingUsers(prev => {
+          const filtered = prev.filter(user => 
+            !(user.userId === data.userId && user.chatId === data.chatId)
+          );
+          return [...filtered, data];
+        });
+
+        // Remove typing indicator after timeout
+        setTimeout(() => {
+          setTypingUsers(prev => prev.filter(user => 
+            !(user.userId === data.userId && user.chatId === data.chatId)
+          ));
+        }, 3000);
+      });
+
+      // Listen for online status updates
+      presenceChannel.bind('pusher:subscription_succeeded', (members: any) => {
+        if (members && members.members) {
+          const userIds = new Set(Object.keys(members.members));
+          setOnlineUsers(userIds);
+        }
+      });
+
+      presenceChannel.bind('pusher:member_added', (member: any) => {
+        setOnlineUsers(prev => new Set([...prev, member.id]));
+      });
+
+      presenceChannel.bind('pusher:member_removed', (member: any) => {
+        setOnlineUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(member.id);
+          return newSet;
+        });
+      });
+
+      return () => {
+        try {
+          userChannel.unbind_all();
+          presenceChannel.unbind_all();
+          pusherClient.unsubscribe(`private-user-${session.user.id}`);
+          pusherClient.unsubscribe('presence-online-users');
+        } catch (error) {
+          console.error('Error cleaning up Pusher subscriptions:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up Pusher subscriptions:', error);
+      setConnectionStatus('disconnected');
+    }
+  }, [session?.user?.id, activeChat, showToast]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -143,10 +178,17 @@ export function RealtimeChat() {
   const fetchChats = async () => {
     try {
       const response = await fetch('/api/chats');
-      const data = await response.json();
-      setChats(data.chats || []);
+      if (response.ok) {
+        const data = await response.json();
+        setChats(data.chats || []);
+      }
     } catch (error) {
       console.error('Error fetching chats:', error);
+      showToast({
+        title: 'Error',
+        message: 'Failed to load chats',
+        type: 'error'
+      });
     }
   };
 
@@ -154,39 +196,56 @@ export function RealtimeChat() {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/chats/${chatId}/messages`);
-      const data = await response.json();
-      setMessages(data.messages || []);
-      
-      // Mark messages as read
-      await fetch(`/api/chats/${chatId}/read`, { method: 'POST' });
-      
-      // Update unread count
-      setChats(prev => prev.map(chat => 
-        chat.id === chatId ? { ...chat, unreadCount: 0 } : chat
-      ));
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+        
+        // Mark messages as read
+        await fetch(`/api/chats/${chatId}/read`, { method: 'POST' });
+        
+        // Update unread count
+        setChats(prev => prev.map(chat => 
+          chat.id === chatId ? { ...chat, unreadCount: 0 } : chat
+        ));
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
+      showToast({
+        title: 'Error',
+        message: 'Failed to load messages',
+        type: 'error'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !activeChat) return;
+    if (!newMessage.trim() || !activeChat || isLoading) return;
+
+    const messageContent = newMessage.trim();
+    setNewMessage('');
 
     try {
       const response = await fetch(`/api/chats/${activeChat}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newMessage.trim() }),
+        body: JSON.stringify({ content: messageContent }),
       });
 
-      if (response.ok) {
-        setNewMessage('');
-        // Message will be added via real-time subscription
+      if (!response.ok) {
+        throw new Error('Failed to send message');
       }
+      
+      // Message will be added via real-time subscription
     } catch (error) {
       console.error('Error sending message:', error);
+      setNewMessage(messageContent); // Restore message on error
+      showToast({
+        title: 'Error',
+        message: 'Failed to send message',
+        type: 'error'
+      });
     }
   };
 
@@ -198,7 +257,7 @@ export function RealtimeChat() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chatId: activeChat }),
-    });
+    }).catch(console.error);
 
     // Clear existing timeout
     if (typingTimeoutRef.current) {
@@ -211,7 +270,7 @@ export function RealtimeChat() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: activeChat }),
-      });
+      }).catch(console.error);
     }, 1000);
   };
 
@@ -234,12 +293,22 @@ export function RealtimeChat() {
         className={cn(
           'fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-xl transition-all duration-200',
           'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600',
-          'text-white font-semibold flex items-center gap-2'
+          'text-white font-semibold flex items-center gap-2 relative'
         )}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
         <TwoPeople className="w-6 h-6" />
+        
+        {/* Connection Status Indicator */}
+        <div className={cn(
+          'absolute -top-1 -left-1 w-3 h-3 rounded-full',
+          connectionStatus === 'connected' ? 'bg-green-500' :
+          connectionStatus === 'connecting' ? 'bg-yellow-500' :
+          'bg-red-500'
+        )} />
+        
+        {/* Unread Count Badge */}
         {totalUnreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
             {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
@@ -324,13 +393,19 @@ export function RealtimeChat() {
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative">
-                                <Image
-                                  src={otherUser.profilePhoto || '/default-avatar.png'}
-                                  alt={otherUser.name}
-                                  width={40}
-                                  height={40}
-                                  className="rounded-full"
-                                />
+                                {otherUser.profilePhoto ? (
+                                  <Image
+                                    src={otherUser.profilePhoto}
+                                    alt={otherUser.name}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                    {otherUser.name.charAt(0)}
+                                  </div>
+                                )}
                                 {onlineUsers.has(otherUser.id) && (
                                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
                                 )}
@@ -440,15 +515,22 @@ export function RealtimeChat() {
                         }}
                         placeholder="Type a message..."
                         className="flex-1"
+                        disabled={isLoading || connectionStatus !== 'connected'}
                       />
                       <Button
                         onPress={sendMessage}
-                        isDisabled={!newMessage.trim()}
+                        isDisabled={!newMessage.trim() || isLoading || connectionStatus !== 'connected'}
                         className="px-3"
                       >
                         <Send className="w-4 h-4" />
                       </Button>
                     </div>
+                    
+                    {connectionStatus !== 'connected' && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected - Messages may not send'}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
