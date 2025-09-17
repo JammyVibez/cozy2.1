@@ -54,6 +54,7 @@ model User {
   relationshipStatus RelationshipStatus?
   emailVerified      DateTime?
   image              String?
+  preferredTheme     String?             @default("default")
   accounts           Account[]
   sessions           Session[]
   profilePhoto       String?
