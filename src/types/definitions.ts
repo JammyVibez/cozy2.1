@@ -32,10 +32,25 @@ export interface FindUserResult extends User {
  * the ./src/lib/prisma/toGetUser.ts function to do this.
  * <GetUser> must be the response type of GET users route handlers.
  */
-export interface GetUser extends UserAfterSetUp {
-  followerCount: number | null;
-  followingCount: number | null;
-  isFollowing: boolean | null; // true when the authenticated user is following the user being requested
+export type GetUser = {
+  id: string
+  name: string | null
+  username: string | null
+  email: string | null
+  emailVerified: Date | null
+  image: string | null
+  profilePhoto: string | null
+  coverPhoto: string | null
+  bio: string | null
+  followerCount: number
+  followingCount: number
+  followers: Follow[]
+  isFollowing?: boolean
+  isBanned?: boolean
+  isActive?: boolean
+  banReason?: string | null
+  bannedAt?: string | null
+  suspendedUntil?: string | null
 }
 
 export interface GetVisualMedia {

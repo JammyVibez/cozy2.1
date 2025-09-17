@@ -6,6 +6,7 @@ import { useUserQuery } from '@/hooks/queries/useUserQuery';
 import Link from 'next/link';
 import { Ellipse } from '@/svg_components';
 import { ButtonLink } from '@/components/ui/ButtonLink';
+import { UserStatusBanner } from '@/components/UserStatusBanner';
 import Tabs from './Tabs';
 import CoverPhoto from './CoverPhoto';
 import ProfilePhoto from './ProfilePhoto';
@@ -41,6 +42,22 @@ export function ProfileHeader({
       </div>
 
       <div className="px-4 pt-2">
+        {/* User Status Banner */}
+        {(profile.isBanned || !profile.isActive || profile.suspendedUntil) && (
+          <div className="mb-6">
+            <UserStatusBanner
+              status={
+                profile.isBanned ? 'banned' :
+                profile.suspendedUntil ? 'suspended' : 
+                !profile.isActive ? 'suspended' : 'banned'
+              }
+              reason={profile.banReason || undefined}
+              bannedAt={profile.bannedAt}
+              suspendedUntil={profile.suspendedUntil}
+            />
+          </div>
+        )}
+
         <h1 className="text-2xl font-bold">{profile.name}</h1>
         <p className="-mt-1 mb-2 text-muted-foreground">@{profile.username}</p>
         <p className="text-foreground/80">{profile.bio}</p>

@@ -7,28 +7,23 @@
 import { FindUserResult, GetUser } from '@/types/definitions';
 import { fileNameToUrl } from '../s3/fileNameToUrl';
 
-export const toGetUser = (findUserResult: FindUserResult): GetUser => {
-  const followerCount = findUserResult?._count.followers || 0;
-  const followingCount = findUserResult?._count.following || 0;
-
-  // Exclude `followers` and `count` as they're not required
-  // in `GetUser`. The `rest` below contains the properties
-  // of the `User` type of @prisma/client.
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { followers, _count, ...rest } = findUserResult;
-
-  const userResponse: GetUser = {
-    ...rest,
-    // The `name` and `username` are guaranteed to be filled after the user's registration
-    name: rest.name!,
-    username: rest.username!,
-    // Convert the `profilePhoto` and `coverPhoto` file names to a full S3 URL
-    profilePhoto: fileNameToUrl(rest.profilePhoto),
-    coverPhoto: fileNameToUrl(rest.coverPhoto),
-    followerCount,
-    followingCount,
-    isFollowing: findUserResult?.followers.length === 1,
-  };
-
-  return userResponse;
-};
+export const toGetUser = (user: any): GetUser => ({
+  id: user.id,
+  name: user.name,
+  username: user.username,
+  email: user.email,
+  emailVerified: user.emailVerified,
+  image: user.image,
+  profilePhoto: user.profilePhoto,
+  coverPhoto: user.coverPhoto,
+  bio: user.bio,
+  followerCount: user._count?.followers || 0,
+  followingCount: user._count?.following || 0,
+  followers: user.followers || [],
+  isFollowing: user.followers?.length > 0,
+  isBanned: user.isBanned,
+  isActive: user.isActive,
+  banReason: user.banReason,
+  bannedAt: user.bannedAt,
+  suspendedUntil: user.suspendedUntil,
+});
