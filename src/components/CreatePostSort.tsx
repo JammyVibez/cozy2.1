@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 interface PostSortItem {
@@ -93,13 +93,13 @@ export function CreatePostSort() {
         </div>
         
         <div className="flex gap-2">
-          <Button onClick={addTextBlock} variant="outline">
+          <Button onClick={addTextBlock} mode="subtle">
             Add Text Block
           </Button>
-          <Button variant="outline">
+          <Button mode="subtle">
             Add Image
           </Button>
-          <Button variant="outline">
+          <Button mode="subtle">
             Add Video
           </Button>
         </div>

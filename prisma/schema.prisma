@@ -100,6 +100,9 @@ model User {
   
   // Status relationship
   statuses           UserStatus[]
+  
+  // External integrations relationship
+  externalIntegrations ExternalIntegration[]
 }
 
 model VerificationToken {
@@ -759,4 +762,58 @@ enum StatusType {
   text
   mood
   activity
+}
+
+// External Service Integration Models
+model ExternalIntegration {
+  id               String   @id @default(cuid())
+  userId           String
+  integrationType  IntegrationType
+  externalUserId   String?  // User's ID on the external service
+  username         String?  // User's username on the external service
+  displayName      String?  // User's display name on the external service
+  avatarUrl        String?  // User's avatar URL on the external service
+  accessToken      String?  // OAuth access token (encrypted)
+  refreshToken     String?  // OAuth refresh token (encrypted)
+  tokenExpiresAt   DateTime? // When the access token expires
+  isConnected      Boolean  @default(true)
+  connectionData   Json?    // Additional service-specific data
+  lastSyncAt       DateTime? // Last time data was synced
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, integrationType])
+  @@index([userId])
+  @@index([integrationType])
+  @@index([isConnected])
+}
+
+model IntegrationWebhook {
+  id               String   @id @default(cuid())
+  integrationType  IntegrationType
+  webhookId        String   // Webhook ID from the external service
+  webhookUrl       String   // The webhook URL
+  secret           String?  // Webhook secret for verification
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([integrationType, webhookId])
+  @@index([integrationType])
+  @@index([isActive])
+}
+
+enum IntegrationType {
+  DISCORD
+  GITHUB
+  TRADINGVIEW
+  TWITTER
+  TWITCH
+  YOUTUBE
+  STEAM
+  SPOTIFY
+  REDDIT
+  LINKEDIN
 }
