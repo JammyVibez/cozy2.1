@@ -16,6 +16,7 @@ import { ButtonNaked } from './ui/ButtonNaked';
 import { AllCaughtUp } from './AllCaughtUp';
 import { Post } from './Post';
 import { GenericLoading } from './GenericLoading';
+import { PostSkeleton } from './PostSkeleton';
 
 // If the `type` is 'profile' or 'feed', the `userId` property is required
 // If the `type` is 'hashtag', the `hashtag` property is required
@@ -229,7 +230,11 @@ export function Posts({ type, hashtag, userId }: PostsProps) {
           )}
         </AnimatePresence>
         {isPending ? (
-          <GenericLoading>Loading posts</GenericLoading>
+          <div className="space-y-4">
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </div>
         ) : (
           <AnimatePresence>
             {data?.pages.map((page) =>

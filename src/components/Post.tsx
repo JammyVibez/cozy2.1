@@ -123,29 +123,30 @@ export const Post = memo(
     const numberOfLikes = _count.postLikes;
 
     return (
-      <div 
+      <article 
         className={cn(
-          "rounded-2xl px-4 shadow-lg sm:px-8 transition-all duration-200",
-          "bg-card border border-border/40 backdrop-blur-sm",
+          "bg-card border border-border/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200",
+          "hover:border-border/80 group",
           `theme-${variant}`,
           actualMode
         )}
         data-theme={variant}
       >
-        <div className="flex items-center justify-between pt-4 sm:pt-5">
-          <ProfileBlock
-            name={author.name!}
-            username={author.username!}
-            time={formatDistanceStrict(new Date(createdAt), new Date())}
-            photoUrl={author.profilePhoto!}
-          />
-          {isOwnPost && <PostOptions postId={postId} content={content} visualMedia={visualMedia} />}
-        </div>
+        <div className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <ProfileBlock
+              name={author.name!}
+              username={author.username!}
+              time={formatDistanceStrict(new Date(createdAt), new Date())}
+              photoUrl={author.profilePhoto!}
+            />
+            {isOwnPost && <PostOptions postId={postId} content={content} visualMedia={visualMedia} />}
+          </div>
         {content && (
-          <div className="mb-4 mt-5">
+          <div className="mb-4">
             {/* Text Design Button for Post Owner */}
             {isOwnPost && (
-              <div className="mb-2 flex justify-end">
+              <div className="mb-3 flex justify-end">
                 <button
                   onClick={openTextDesigner}
                   className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors flex items-center gap-1"
@@ -157,7 +158,7 @@ export const Post = memo(
             
             {/* Post Content with Applied Styles */}
             <div
-              className="text-lg text-muted-foreground"
+              className="text-base leading-relaxed text-foreground"
               style={textDesign?.styles}
             >
               {textDesign?.iframeUrl ? (
@@ -183,42 +184,39 @@ export const Post = memo(
           </div>
         )}
         {visualMedia.length > 0 && (
-          <div className="mb-4 mt-5 overflow-hidden rounded-2xl">
+          <div className="mb-4 overflow-hidden rounded-lg">
             <PostVisualMediaContainer visualMedia={visualMedia} />
           </div>
         )}
-        <div
-          className={cn([
-            'flex justify-start gap-2 border-y border-y-border py-2',
-            !commentsShown && 'border-b-transparent',
-          ])}>
-          <ToggleStepper
-            isSelected={isLiked}
-            onChange={handleLikeToggle}
-            Icon={SvgHeart}
-            quantity={numberOfLikes}
-            // noun="Like"
-          />
-          <ToggleStepper
-            isSelected={commentsShown || false}
-            onChange={handleCommentsToggle}
-            Icon={SvgComment}
-            quantity={_count.comments}
-            color="blue"
-            // noun="Comment"
-          />
+        
+        {/* Action Bar */}
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className="flex items-center gap-1">
+            <ToggleStepper
+              isSelected={isLiked}
+              onChange={handleLikeToggle}
+              Icon={SvgHeart}
+              quantity={numberOfLikes}
+            />
+            <ToggleStepper
+              isSelected={commentsShown || false}
+              onChange={handleCommentsToggle}
+              Icon={SvgComment}
+              quantity={_count.comments}
+              color="blue"
+            />
+          </div>
           {!isOwnPost && (
             <TipButton 
               receiverId={author.id} 
               postId={postId}
-              className="ml-2"
             />
           )}
         </div>
 
         <AnimatePresence>
           {commentsShown && (
-            <motion.div key={`${postId}-comments`} variants={variants} initial={false} animate="animate" exit="exit">
+            <motion.div key={`${postId}-comments`} variants={variants} initial={false} animate="animate" exit="exit" className="mt-4">
               <Comments postId={postId} />
             </motion.div>
           )}
@@ -226,7 +224,8 @@ export const Post = memo(
         
         {/* Text Design Modal */}
         <Modal />
-      </div>
+        </div>
+      </article>
     );
   },
   (oldProps, newProps) => isEqual(oldProps, newProps),
