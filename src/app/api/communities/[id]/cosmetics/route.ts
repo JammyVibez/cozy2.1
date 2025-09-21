@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma/prisma';
 // GET /api/communities/[id]/cosmetics - Fetch community cosmetics
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: communityId } = params;
+    const { id: communityId } = await params;
 
     // Check if user is admin of the community
     const membership = await prisma.communityMember.findUnique({

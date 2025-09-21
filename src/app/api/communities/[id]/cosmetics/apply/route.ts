@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma/prisma';
 // POST /api/communities/[id]/cosmetics/apply - Apply or remove cosmetic to/from community
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -13,7 +13,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: communityId } = params;
+    const { id: communityId } = await params;
     const body = await request.json();
     const { cosmeticId, isActive } = body;
 
