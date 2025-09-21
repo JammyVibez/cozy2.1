@@ -5,7 +5,7 @@ import 'swiper/css/zoom';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+// No font imports needed - using CSS font stacks
 import { cn } from '@/lib/cn';
 import { Providers } from '@/components/Providers';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -14,15 +14,11 @@ import { PWAInstaller } from '@/components/PWAInstaller';
 import { auth } from '@/auth';
 import React from 'react';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-});
+// CSS font variables for system fonts
+const fontVariables = {
+  '--font-inter': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  '--font-mono': 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace'
+};
 
 export const metadata: Metadata = {
   title: {
@@ -88,7 +84,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className={cn('bg-background text-foreground overflow-y-scroll font-sans', inter.variable, jetbrainsMono.variable)}>
+      <body className={cn('bg-background text-foreground overflow-y-scroll font-sans')} style={fontVariables}>
         <ThemeProvider>
           <Providers session={session}>
             {children}

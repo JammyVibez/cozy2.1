@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import { Profile, Shield, Palette, Bell, Database, Coins, ArrowChevronForward } from '@/svg_components';
+import { Profile, CircleActionsAlertInfo, Feather, NotificationBell, DeviceLaptop, Heart, ArrowChevronForward } from '@/svg_components';
 
 export const metadata = {
   title: 'Settings - Cozy',
@@ -60,31 +60,31 @@ export default async function SettingsPage() {
     {
       title: 'Privacy & Security',
       description: 'Control who can see your information and contact you',
-      icon: Shield,
+      icon: CircleActionsAlertInfo,
       href: '/settings/privacy',
     },
     {
       title: 'Appearance',
       description: 'Customize themes, colors, and visual preferences',
-      icon: Palette,
+      icon: Feather,
       href: '/settings/appearance',
     },
     {
       title: 'Notifications',
       description: 'Manage email, push, and in-app notification preferences',
-      icon: Bell,
+      icon: NotificationBell,
       href: '/settings/notifications',
     },
     {
       title: 'Data & Storage',
       description: 'Download your data, manage storage, and export settings',
-      icon: Database,
+      icon: DeviceLaptop,
       href: '/settings/data',
     },
     {
       title: 'Monetization',
       description: 'Premium features, themes, and creator tools',
-      icon: Coins,
+      icon: Heart,
       href: '/settings/monetization',
       badge: 'Pro',
     },
