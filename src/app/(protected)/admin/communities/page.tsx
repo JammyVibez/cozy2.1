@@ -28,8 +28,8 @@ export default async function CommunityManagementPage() {
   }
 
   // Check if user has admin privileges
-  const userRole = user.role;
-  const isAdminOrModerator = ['ADMIN', 'MODERATOR'].includes(userRole);
+  const prismaRole = user.role;
+  const isAdminOrModerator = ['ADMIN', 'MODERATOR'].includes(prismaRole);
 
   if (!isAdminOrModerator) {
     return (
@@ -44,6 +44,9 @@ export default async function CommunityManagementPage() {
       </div>
     );
   }
+
+  // Map Prisma role to component expected role
+  const userRole: 'ADMIN' | 'MODERATOR' | 'MEMBER' = prismaRole === 'USER' ? 'MEMBER' : prismaRole;
 
   return (
     <div className="container mx-auto py-8">
