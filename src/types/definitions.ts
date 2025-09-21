@@ -42,6 +42,12 @@ export type GetUser = {
   profilePhoto: string | null
   coverPhoto: string | null
   bio: string | null
+  birthDate: Date | null
+  gender: string | null
+  relationshipStatus: string | null
+  phoneNumber: string | null
+  address: string | null
+  website: string | null
   followerCount: number
   followingCount: number
   followers: Follow[]

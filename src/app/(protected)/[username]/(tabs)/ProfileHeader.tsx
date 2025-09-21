@@ -77,7 +77,6 @@ export function ProfileHeader({
             <span className="font-semibold">{profile.followingCount}</span>{' '}
             <span className="font-medium text-muted-foreground">Following</span>
           </Link>
-        </div>
         <Tabs isOwnProfile={isOwnProfile} />
       </div>
     </>
