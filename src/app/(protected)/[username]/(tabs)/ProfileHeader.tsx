@@ -52,8 +52,8 @@ export function ProfileHeader({
                 !profile.isActive ? 'suspended' : 'banned'
               }
               reason={profile.banReason || undefined}
-              bannedAt={profile.bannedAt}
-              suspendedUntil={profile.suspendedUntil}
+              bannedAt={profile.bannedAt || undefined}
+              suspendedUntil={profile.suspendedUntil || undefined}
             />
           </div>
         )}
