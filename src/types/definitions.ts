@@ -224,6 +224,12 @@ export interface GetReport {
     content: string;
     user: UserSummaryAfterSetUp;
   };
+  targetData?: {
+    id: number | string;
+    content?: string | null;
+    username?: string;
+    user?: UserSummaryAfterSetUp;
+  };
   moderatorAction?: {
     actionType: string;
     reason: string;
