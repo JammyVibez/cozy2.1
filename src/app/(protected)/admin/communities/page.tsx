@@ -3,6 +3,7 @@ import React from 'react';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { CommunityManagementDashboard } from '@/components/CommunityManagementDashboard';
+import prisma from '@/lib/prisma/prisma';
 
 export const metadata = {
   title: 'Community Management - Munia',
@@ -16,11 +17,21 @@ export default async function CommunityManagementPage() {
     redirect('/login');
   }
 
-  // Check if user has admin privileges
-  // In a real implementation, you'd check this from the database
-  const userRole = session.user.email === process.env.ADMIN_EMAIL ? 'ADMIN' : 'MEMBER';
+  // Get user from database to check role
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true }
+  });
 
-  if (!['ADMIN', 'MODERATOR'].includes(userRole)) {
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Check if user has admin privileges
+  const userRole = user.role;
+  const isAdminOrModerator = ['ADMIN', 'MODERATOR'].includes(userRole);
+
+  if (!isAdminOrModerator) {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center py-12">

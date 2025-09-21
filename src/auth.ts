@@ -10,7 +10,7 @@ import { z } from 'zod';
 
 declare module 'next-auth' {
   interface Session {
-    user: { id: string; name: string };
+    user: { id: string; name: string; email: string };
   }
 }
 
@@ -176,8 +176,8 @@ export const {
     session({ token, user, ...rest }) {
       return {
         /**
-         * We need to explicitly return the `id` here to make it available to the client
-         * when calling `useSession()` as NextAuth does not include the user's id.
+         * We need to explicitly return the `id`, `name`, and `email` here to make them available to the client
+         * when calling `useSession()` as NextAuth does not include all user data by default.
          *
          * If you only need to get the `id` of the user in the client, use NextAuth's
          * `useSession()`, but if you need more of user's data, use the `useSessionUserData()`
@@ -185,9 +185,18 @@ export const {
          */
         user: {
           id: token.sub!,
+          name: token.name || '',
+          email: token.email || '',
         },
         expires: rest.session.expires,
       };
+    },
+    jwt({ token, user }) {
+      if (user) {
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
     },
   },
 });
