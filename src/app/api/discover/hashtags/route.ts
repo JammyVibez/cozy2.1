@@ -33,7 +33,7 @@ export async function GET(_request: NextRequest) {
       {};
 
     posts.forEach((post) => {
-      const hashtags = post.content.match(/#\w+/g) || [];
+      const hashtags = post.content?.match(/#\w+/g) || [];
       const engagement = post._count.postLikes + post._count.comments;
 
       hashtags.forEach((hashtag) => {
