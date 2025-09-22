@@ -34,8 +34,6 @@ const categories = [
   { value: 'MINIMAL', label: 'Minimal', description: 'Clean and simple aesthetics' },
   { value: 'GAMING', label: 'Gaming', description: 'Dynamic themes for gamers' },
   { value: 'PROFESSIONAL', label: 'Professional', description: 'Sophisticated business themes' },
-  { value: 'FANTASY', label: 'Fantasy', description: 'Magical and mystical themes' },
-  { value: 'NATURE', label: 'Nature', description: 'Natural and organic themes' },
 ];
 
 export function EditThemeModal({ theme, isOpen, onClose }: EditThemeModalProps) {

@@ -109,7 +109,7 @@ export default function AdminThemesPage() {
     },
   });
 
-  const categories = ['ALL', 'NEON', 'GAMING', 'MINIMAL', 'PROFESSIONAL', 'CLASSIC', 'FANTASY', 'NATURE'];
+  const categories = ['ALL', 'NEON', 'GAMING', 'MINIMAL', 'PROFESSIONAL', 'CLASSIC'];
 
   return (
     <div className="min-h-screen bg-background">

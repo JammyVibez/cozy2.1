@@ -6,7 +6,7 @@ import { z } from 'zod';
 const createThemeSchema = z.object({
   name: z.string().min(1, 'Theme name is required'),
   description: z.string().min(1, 'Description is required'),
-  category: z.enum(['CLASSIC', 'NEON', 'MINIMAL', 'GAMING', 'PROFESSIONAL', 'FANTASY', 'NATURE']),
+  category: z.enum(['CLASSIC', 'NEON', 'MINIMAL', 'GAMING', 'PROFESSIONAL']),
   price: z.number().min(0, 'Price must be non-negative'),
   colorScheme: z.object({
     primary: z.string(),
