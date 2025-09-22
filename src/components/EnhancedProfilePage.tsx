@@ -40,7 +40,7 @@ interface ProfileUser {
   bio?: string;
   profilePhoto?: string;
   coverPhoto?: string;
-  verified?: boolean;
+  isVerified?: boolean;
   joinedAt: string;
   location?: string;
   website?: string;
@@ -192,7 +192,7 @@ export function EnhancedProfilePage({ user, stats, isOwnProfile }: EnhancedProfi
               <h1 className="text-3xl md:text-4xl text-gray-900 dark:text-white">
                 <CosmeticNameplate username={user.name} />
               </h1>
-              {user.verified && (
+              {user.isVerified && (
                 <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm">✓</span>
                 </div>

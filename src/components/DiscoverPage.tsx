@@ -21,7 +21,7 @@ interface TrendingPost {
     username: string;
     name: string;
     profilePhoto: string | null;
-    verified?: boolean;
+    isVerified?: boolean;
   };
   stats: {
     likes: number;
@@ -40,7 +40,7 @@ interface SuggestedUser {
   name: string;
   bio: string;
   profilePhoto: string | null;
-  verified?: boolean;
+  isVerified?: boolean;
   followers: number;
   mutualFollows: number;
 }
@@ -210,7 +210,7 @@ export function DiscoverPage() {
                           <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">
                               {post.user.name}
-                              {post.user.verified && (
+                              {post.user.isVerified && (
                                 <span className="ml-1 text-blue-500">✓</span>
                               )}
                             </p>
@@ -294,7 +294,7 @@ export function DiscoverPage() {
                       <Link href={`/${user.username}`} className="block">
                         <h3 className="font-semibold">
                           {user.name}
-                          {user.verified && (
+                          {user.isVerified && (
                             <span className="ml-1 text-blue-500">✓</span>
                           )}
                         </h3>

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           name: user.name,
           bio: user.bio,
           profilePhoto: user.profilePhoto,
-          verified: user.verified,
+          verified: user.isVerified,
           followers: user._count.followers,
           mutualFollows: 0,
         }));
