@@ -29,6 +29,9 @@ interface AdminUser {
   isActive: boolean;
   isBanned: boolean;
   role: 'USER' | 'MODERATOR' | 'ADMIN';
+  banReason?: string;
+  bannedAt?: string;
+  suspendedUntil?: string;
   createdAt: string;
   lastLoginAt?: string;
   stats: {
