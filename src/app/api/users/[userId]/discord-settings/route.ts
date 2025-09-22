@@ -49,7 +49,7 @@ export async function GET(
       }
     });
 
-    const settings = discordIntegration?.connectionData || {};
+    const settings = discordIntegration?.connectionData as any || {};
 
     return NextResponse.json({
       showIframe: settings.showIframe || false,
@@ -112,7 +112,7 @@ export async function PATCH(
     }
 
     // Update Discord settings
-    const currentSettings = discordIntegration.connectionData || {};
+    const currentSettings = discordIntegration.connectionData as any || {};
     const newSettings = { ...currentSettings, ...validatedData };
 
     const updatedIntegration = await prisma.externalIntegration.update({
