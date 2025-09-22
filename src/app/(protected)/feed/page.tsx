@@ -14,6 +14,18 @@ export const metadata = {
 
 export default async function Page() {
   const [user] = await getServerUser();
+  
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-muted-foreground">Please log in to access your feed.</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Clean Header */}
@@ -35,8 +47,8 @@ export default async function Page() {
           
           {/* Create Post Section */}
           <div className="bg-card border border-border/50 rounded-xl shadow-sm">
-              <CreatePostModalLauncher />
-            </div>
+            <CreatePostModalLauncher />
+          </div>
           
           {/* Feed Filters */}
           <FeedFilters />
