@@ -617,7 +617,8 @@ export default function AdminUsersPage() {
                         ) : (
                           <Button
                             size="small"
-                            mode="destructive"
+                            mode="secondary"
+                            className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                             onPress={() => handleUserAction(user, 'ban')}
                           >
                             Ban
@@ -635,7 +636,8 @@ export default function AdminUsersPage() {
                         
                         <Button
                           size="small"
-                          mode="destructive"
+                          mode="secondary"
+                          className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                           onPress={() => handleUserAction(user, 'delete')}
                           loading={deleteUserMutation.isPending}
                         >
@@ -833,8 +835,8 @@ export default function AdminUsersPage() {
                   Cancel
                 </Button>
                 <Button
-                  mode="destructive"
-                  className="flex-1"
+                  mode="secondary"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                   onPress={handleBanUser}
                   loading={banUserMutation.isPending}
                   isDisabled={!banReason.trim()}
