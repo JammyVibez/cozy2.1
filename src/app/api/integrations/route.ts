@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
       },
       select: {
         id: true,
-        type: true,
+        integrationType: true,
         externalUserId: true,
         username: true,
-        status: true,
+        isConnected: true,
         createdAt: true,
         updatedAt: true
       }
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     // Create a comprehensive list of all available integrations
     const allIntegrations = Object.values(IntegrationType).map(type => {
-      const userIntegration = userIntegrations.find(integration => integration.type === type);
+      const userIntegration = userIntegrations.find(integration => integration.integrationType === type);
       
       return {
         id: type.toLowerCase(),
