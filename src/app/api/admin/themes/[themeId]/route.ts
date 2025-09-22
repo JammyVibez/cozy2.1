@@ -139,7 +139,16 @@ export async function PUT(
     const updatedTheme = await prisma.theme.update({
       where: { id: themeId },
       data: updateData,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        category: true,
+        price: true,
+        isActive: true,
+        colorScheme: true,
+        createdAt: true,
+        updatedAt: true,
         users: {
           select: {
             purchasedAt: true,
