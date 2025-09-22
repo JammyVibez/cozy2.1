@@ -11,6 +11,17 @@ export const metadata = {
 export default async function DiscordPage() {
   const [user] = await getServerUser();
   
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-muted-foreground">Please log in to access Discord customization.</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen">
       {/* Header */}
