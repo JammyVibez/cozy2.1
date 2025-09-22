@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
             content: true,
             _count: {
               select: {
-                likes: true,
+                postLikes: true,
                 comments: true,
               },
             },
