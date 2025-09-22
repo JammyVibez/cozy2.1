@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
             comments: true,
           },
         },
-        likes: {
+        postLikes: {
           where: {
             userId: session.user.id,
           },
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [
         {
-          likes: {
+          postLikes: {
             _count: 'desc',
           },
         },
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       createdAt: post.createdAt,
       likes: post._count.postLikes,
       comments: post._count.comments,
-      isLiked: post.likes.length > 0,
+      isLiked: post.postLikes.length > 0,
       visualMedia: post.visualMedia,
     }));
 
