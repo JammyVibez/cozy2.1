@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
       // Connect integration - redirect to OAuth or store connection
       const existingIntegration = await prisma.externalIntegration.findUnique({
         where: {
-          userId_type: {
+          userId_integrationType: {
             userId: session.user.id,
-            type: integrationType
+            integrationType: integrationType
           }
         }
       });
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         const updatedIntegration = await prisma.externalIntegration.update({
           where: { id: existingIntegration.id },
           data: {
-            status: 'connected',
+            isConnected: true,
             updatedAt: new Date()
           }
         });
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
         const newIntegration = await prisma.externalIntegration.create({
           data: {
             userId: session.user.id,
-            type: integrationType,
-            status: 'connected',
+            integrationType: integrationType,
+            isConnected: true,
             // For now, we'll use placeholder data
             // In real implementation, this would come from OAuth flow
             externalUserId: `placeholder_${Date.now()}`,
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       await prisma.externalIntegration.deleteMany({
         where: {
           userId: session.user.id,
-          type: integrationType
+          integrationType: integrationType
         }
       });
       
