@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            likes: true,
+            postLikes: true,
             comments: true,
           },
         },
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
       content: post.content,
       author: post.author,
       createdAt: post.createdAt,
-      likes: post._count.likes,
+      likes: post._count.postLikes,
       comments: post._count.comments,
       isLiked: post.likes.length > 0,
       visualMedia: post.visualMedia,

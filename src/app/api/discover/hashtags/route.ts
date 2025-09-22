@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest) {
         content: true,
         _count: {
           select: {
-            likes: true,
+            postLikes: true,
             comments: true,
           },
         },
@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest) {
 
     posts.forEach((post) => {
       const hashtags = post.content.match(/#\w+/g) || [];
-      const engagement = post._count.likes + post._count.comments;
+      const engagement = post._count.postLikes + post._count.comments;
 
       hashtags.forEach((hashtag) => {
         const tag = hashtag.toLowerCase();
