@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
                 id: true,
               },
             },
+            visualMedia: true,
           },
           orderBy: {
             createdAt: 'desc',
