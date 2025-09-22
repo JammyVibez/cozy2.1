@@ -5,6 +5,5 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ hashtag: string }> }
 ) {
-  const resolved = await params;
-  return GetHandler(request, { params: resolved });
+  return GetHandler(request, { params });
 }

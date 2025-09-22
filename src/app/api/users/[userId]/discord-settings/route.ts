@@ -37,11 +37,11 @@ export async function GET(
     const discordIntegration = await prisma.externalIntegration.findFirst({
       where: {
         userId: userId,
-        platform: 'DISCORD'
+        integrationType: 'DISCORD'
       }
     });
 
-    const settings = discordIntegration?.settings || {};
+    const settings = discordIntegration?.connectionData || {};
 
     return NextResponse.json({
       showIframe: settings.showIframe || false,
@@ -88,7 +88,7 @@ export async function PATCH(
     let discordIntegration = await prisma.externalIntegration.findFirst({
       where: {
         userId: userId,
-        platform: 'DISCORD'
+        integrationType: 'DISCORD'
       }
     });
 
@@ -96,20 +96,20 @@ export async function PATCH(
       discordIntegration = await prisma.externalIntegration.create({
         data: {
           userId: userId,
-          platform: 'DISCORD',
+          integrationType: 'DISCORD',
           isConnected: false,
-          settings: {}
+          connectionData: {}
         }
       });
     }
 
     // Update Discord settings
-    const currentSettings = discordIntegration.settings || {};
+    const currentSettings = discordIntegration.connectionData || {};
     const newSettings = { ...currentSettings, ...validatedData };
 
     const updatedIntegration = await prisma.externalIntegration.update({
       where: { id: discordIntegration.id },
-      data: { settings: newSettings }
+      data: { connectionData: newSettings }
     });
 
     return NextResponse.json({

@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
             id: integrationType.toLowerCase(),
             name: getIntegrationName(integrationType),
             isConnected: true,
-            type: integrationType,
             connectedAt: updatedIntegration.createdAt
           }
         });
@@ -79,7 +78,6 @@ export async function POST(request: NextRequest) {
             id: integrationType.toLowerCase(),
             name: getIntegrationName(integrationType),
             isConnected: true,
-            type: integrationType,
             connectedAt: newIntegration.createdAt
           }
         });
@@ -98,8 +96,7 @@ export async function POST(request: NextRequest) {
         integration: {
           id: integrationType.toLowerCase(),
           name: getIntegrationName(integrationType),
-          isConnected: false,
-          type: integrationType
+          isConnected: false
         }
       });
     }
