@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { pusher } from '@/lib/pusher/pusherServer';
+import prisma from '@/lib/prisma/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,12 +20,22 @@ export async function POST(request: NextRequest) {
       // For now, allow all authenticated users
     }
 
+    // Fetch user data from database to get username
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { username: true, name: true, email: true, image: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const presenceData = {
       user_id: session.user.id,
       user_info: {
-        name: session.user.name,
-        username: session.user.username || session.user.email?.split('@')[0],
-        avatar: session.user.image
+        name: user.name,
+        username: user.username || user.email?.split('@')[0],
+        avatar: user.image
       }
     };
 
