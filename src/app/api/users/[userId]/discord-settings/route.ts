@@ -25,12 +25,20 @@ export async function GET(
       );
     }
 
-    // Users can only access their own settings or admins can access any
-    if (session.user.id !== userId && session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      );
+    // Check if user is accessing their own settings or is an admin
+    if (session.user.id !== userId) {
+      // Fetch user role from database to check admin access
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true }
+      });
+      
+      if (!user || user.role !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Access denied' },
+          { status: 403 }
+        );
+      }
     }
 
     // Get Discord integration settings for the user
