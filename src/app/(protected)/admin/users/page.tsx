@@ -304,7 +304,7 @@ export default function AdminUsersPage() {
           userId: user.id,
           updates: { 
             isActive: false,
-            suspendedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            suspendedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
           }
         });
         break;
