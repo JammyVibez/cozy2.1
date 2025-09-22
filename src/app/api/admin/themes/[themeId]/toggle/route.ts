@@ -59,8 +59,6 @@ export async function PUT(
       usage,
       revenue,
       colorScheme: updatedTheme.colorScheme as any,
-      createdAt: updatedTheme.createdAt?.toISOString(),
-      updatedAt: updatedTheme.updatedAt?.toISOString()
     };
 
     return NextResponse.json({

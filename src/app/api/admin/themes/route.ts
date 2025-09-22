@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { name: 'asc' }
     });
 
     // Calculate analytics for each theme
@@ -56,8 +56,6 @@ export async function GET(request: NextRequest) {
         usage,
         revenue,
         colorScheme: theme.colorScheme as any,
-        createdAt: theme.createdAt?.toISOString(),
-        updatedAt: theme.updatedAt?.toISOString()
       };
     });
 
@@ -151,8 +149,6 @@ export async function POST(request: NextRequest) {
       usage: 0, // New theme has no users yet
       revenue: 0,
       colorScheme: newTheme.colorScheme as any,
-      createdAt: newTheme.createdAt?.toISOString(),
-      updatedAt: newTheme.updatedAt?.toISOString()
     };
 
     return NextResponse.json({

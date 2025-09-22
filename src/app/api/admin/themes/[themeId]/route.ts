@@ -147,8 +147,6 @@ export async function PUT(
         price: true,
         isActive: true,
         colorScheme: true,
-        createdAt: true,
-        updatedAt: true,
         users: {
           select: {
             purchasedAt: true,
@@ -171,9 +169,7 @@ export async function PUT(
       isActive: updatedTheme.isActive,
       usage,
       revenue,
-      colorScheme: updatedTheme.colorScheme as any,
-      createdAt: updatedTheme.createdAt?.toISOString(),
-      updatedAt: updatedTheme.updatedAt?.toISOString()
+      colorScheme: updatedTheme.colorScheme as any
     };
 
     return NextResponse.json({
