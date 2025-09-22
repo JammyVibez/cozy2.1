@@ -316,7 +316,7 @@ export default function AdminUsersPage() {
           userId: user.id,
           updates: { 
             isActive: true,
-            suspendedUntil: null
+            suspendedUntil: undefined
           }
         });
         break;
