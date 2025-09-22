@@ -36,10 +36,10 @@ export async function GET(request: NextRequest) {
         description: getIntegrationDescription(type),
         icon: getIntegrationIcon(type),
         category: getIntegrationCategory(type),
-        isConnected: userIntegration?.status === 'connected',
+        isConnected: userIntegration?.isConnected || false,
         connectedAt: userIntegration?.createdAt,
         username: userIntegration?.username,
-        status: userIntegration?.status || 'disconnected'
+        status: userIntegration?.isConnected ? 'connected' : 'disconnected'
       };
     });
 
