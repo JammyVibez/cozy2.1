@@ -337,7 +337,8 @@ export default function AdminThemesPage() {
                     <Button
                       onPress={() => deleteThemeMutation.mutate(selectedTheme.id)}
                       loading={deleteThemeMutation.isPending}
-                      mode="destructive"
+                      mode="secondary"
+                      className="bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                     >
                       Delete
                     </Button>
