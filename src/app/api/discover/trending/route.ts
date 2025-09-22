@@ -85,13 +85,13 @@ export async function GET(request: NextRequest) {
         },
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             username: true,
             name: true,
             profilePhoto: true,
-            verified: true,
+            isVerified: true,
           },
         },
         _count: {
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     const formattedPosts = posts.map(post => ({
       id: post.id,
       content: post.content,
-      author: post.author,
+      author: post.user,
       createdAt: post.createdAt,
       likes: post._count.postLikes,
       comments: post._count.comments,
