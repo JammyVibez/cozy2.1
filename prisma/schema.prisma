@@ -582,6 +582,7 @@ model Cosmetic {
   name      String
   preview   String // Preview image URL
   assetUrl  String // Asset URL (CSS, SVG, etc.)
+  assetType String? // Asset type: html, gif, image, video, svg
   metadata  Json? // Additional metadata (colors, properties, etc.)
   createdAt DateTime     @default(now())
 

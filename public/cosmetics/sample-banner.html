@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Banner Decoration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .banner-decoration {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: linear-gradient(45deg, 
+                rgba(138, 43, 226, 0.3) 0%, 
+                rgba(75, 0, 130, 0.3) 25%, 
+                rgba(138, 43, 226, 0.3) 50%, 
+                rgba(75, 0, 130, 0.3) 75%, 
+                rgba(138, 43, 226, 0.3) 100%);
+            background-size: 20px 20px;
+            animation: move 3s linear infinite;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffd700, #ffed4e);
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+        
+        .floating-element:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+        
+        .floating-element:nth-child(4) {
+            top: 40%;
+            right: 30%;
+            animation-delay: 3s;
+        }
+        
+        @keyframes move {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 20px;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner-decoration">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+</body>
+</html>

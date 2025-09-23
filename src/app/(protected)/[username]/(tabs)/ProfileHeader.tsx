@@ -27,9 +27,9 @@ export function ProfileHeader({
     <>
       <div className="relative mb-[88px] md:pt-6">
         <div className="h-60 overflow-hidden bg-muted/30 drop-shadow-xl md:rounded-3xl">
-          <CoverPhoto isOwnProfile={isOwnProfile} photoUrl={profile.coverPhoto} />
+          <CoverPhoto isOwnProfile={isOwnProfile} photoUrl={profile.coverPhoto} userId={profile.id} />
         </div>
-        <ProfilePhoto isOwnProfile={isOwnProfile} photoUrl={profile.profilePhoto} name={initialProfileData.name!} />
+        <ProfilePhoto isOwnProfile={isOwnProfile} photoUrl={profile.profilePhoto} name={initialProfileData.name!} userId={profile.id} />
         <div className="absolute -bottom-20 right-2 md:right-0">
           {isOwnProfile ? (
             <ButtonLink shape="pill" mode="subtle" href="/edit-profile">

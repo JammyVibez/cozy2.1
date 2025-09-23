@@ -9,6 +9,7 @@ interface CosmeticFormData {
   name: string;
   preview: string;
   assetUrl: string;
+  assetType: 'html' | 'gif' | 'image' | 'video' | 'svg';
   metadata: Record<string, any>;
 }
 
@@ -19,12 +20,21 @@ const COSMETIC_TYPES = [
   { value: 'PFP_FRAME', label: 'Profile Frame', icon: '🖼️' }
 ];
 
+const ASSET_TYPES = [
+  { value: 'html', label: 'HTML/CSS/JS', icon: '🌐', description: 'Interactive iframe content' },
+  { value: 'gif', label: 'GIF Animation', icon: '🎬', description: 'Animated GIF files' },
+  { value: 'image', label: 'Static Image', icon: '🖼️', description: 'JPG, PNG, WebP images' },
+  { value: 'video', label: 'Video', icon: '🎥', description: 'MP4, WebM video files' },
+  { value: 'svg', label: 'SVG Vector', icon: '📐', description: 'Scalable vector graphics' }
+];
+
 export default function AdminCosmeticsPage() {
   const [formData, setFormData] = useState<CosmeticFormData>({
     type: 'THEME',
     name: '',
     preview: '',
     assetUrl: '',
+    assetType: 'html',
     metadata: {}
   });
   const [loading, setLoading] = useState(false);
@@ -55,6 +65,7 @@ export default function AdminCosmeticsPage() {
           name: '',
           preview: '',
           assetUrl: '',
+          assetType: 'html',
           metadata: {}
         });
       } else {
@@ -83,6 +94,17 @@ export default function AdminCosmeticsPage() {
       default:
         return `${baseUrl}/${filename}`;
     }
+  };
+
+  // Auto-detect asset type from filename
+  const detectAssetType = (filename: string): 'html' | 'gif' | 'image' | 'video' | 'svg' => {
+    const extension = filename.split('.').pop()?.toLowerCase();
+    if (extension === 'gif') return 'gif';
+    if (extension === 'svg') return 'svg';
+    if (['jpg', 'jpeg', 'png', 'webp'].includes(extension || '')) return 'image';
+    if (['mp4', 'webm', 'ogg'].includes(extension || '')) return 'video';
+    if (extension === 'html') return 'html';
+    return 'html'; // Default
   };
 
   return (
@@ -168,17 +190,45 @@ export default function AdminCosmeticsPage() {
               />
             </div>
 
+            {/* Asset Type Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Asset Type
+              </label>
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                {ASSET_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => handleInputChange('assetType', type.value)}
+                    className={cn(
+                      'p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-1',
+                      formData.assetType === type.value
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-orange-300'
+                    )}
+                  >
+                    <span className="text-lg">{type.icon}</span>
+                    <span className="font-medium text-xs">{type.label}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                      {type.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Asset URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Asset URL (CSS/SVG/etc.)
+                Asset URL (GitHub Raw, CDN, etc.)
               </label>
               <input
                 type="url"
                 value={formData.assetUrl}
                 onChange={(e) => handleInputChange('assetUrl', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="https://raw.githubusercontent.com/..."
+                placeholder="https://raw.githubusercontent.com/... or https://cdn.example.com/..."
                 required
               />
             </div>
@@ -189,22 +239,28 @@ export default function AdminCosmeticsPage() {
                 💡 GitHub URL Helper
               </h4>
               <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                Enter a filename and we'll generate the GitHub raw URL:
+                Enter a filename and we'll generate the GitHub raw URL and auto-detect the asset type:
               </p>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="filename.svg"
+                  placeholder="filename.gif, animation.html, frame.svg, etc."
                   className="flex-1 px-3 py-2 border border-blue-200 dark:border-blue-600 rounded-lg text-sm dark:bg-gray-700 dark:text-white"
                   onChange={(e) => {
-                    const url = generateGitHubUrl(e.target.value);
-                    if (e.target.value) {
+                    const filename = e.target.value;
+                    if (filename) {
+                      const url = generateGitHubUrl(filename);
+                      const detectedType = detectAssetType(filename);
                       handleInputChange('assetUrl', url);
                       handleInputChange('preview', url);
+                      handleInputChange('assetType', detectedType);
                     }
                   }}
                 />
               </div>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                Supports: .html, .gif, .svg, .png, .jpg, .mp4, .webm and more
+              </p>
             </div>
 
             {/* Metadata */}

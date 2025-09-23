@@ -6,8 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const resolved = await params;
-    return GetHandler(request, { params: resolved });
+    return GetHandler(request, { params });
   } catch (error) {
     console.error('Error in users API route:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {

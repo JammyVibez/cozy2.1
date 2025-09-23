@@ -4,20 +4,27 @@ import Button from '@/components/ui/Button';
 import { FallbackProfilePhoto } from '@/components/ui/FallbackProfilePhoto';
 import { useUpdateProfileAndCoverPhotoClient } from '@/hooks/useUpdateProfileAndCoverPhotoClient';
 import { useVisualMediaModal } from '@/hooks/useVisualMediaModal';
+import { useUserCosmetics } from '@/hooks/useUserCosmetics';
+import { CosmeticOverlays } from '@/components/CosmeticOverlay';
 import { Camera } from '@/svg_components';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 export default function ProfilePhoto({
   isOwnProfile,
   name,
   photoUrl,
+  userId,
 }: {
   isOwnProfile: boolean;
   name: string;
   photoUrl: string | null;
+  userId?: string;
 }) {
   const { inputFileRef, openInput, handleChange, isPending } = useUpdateProfileAndCoverPhotoClient('profile');
   const { showVisualMediaModal } = useVisualMediaModal();
+  const { getActiveCosmetic } = useUserCosmetics(userId);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   const showProfilePhotoModal = useCallback(() => {
     showVisualMediaModal({
       visualMedia: [
@@ -30,8 +37,12 @@ export default function ProfilePhoto({
     });
   }, [photoUrl, showVisualMediaModal]);
 
+  // Get PFP_FRAME cosmetic for profile photo decorations
+  const pfpFrameCosmetic = getActiveCosmetic('PFP_FRAME');
+  const profileCosmetics = pfpFrameCosmetic ? [pfpFrameCosmetic] : [];
+
   return (
-    <div className="absolute bottom-[-88px] h-44 w-44 border-white bg-cover">
+    <div ref={containerRef} className="absolute bottom-[-88px] h-44 w-44 border-white bg-cover">
       {photoUrl && (
         <img src={photoUrl} alt="Profile" className="absolute h-full w-full rounded-full border-4 object-cover" />
       )}
@@ -45,6 +56,14 @@ export default function ProfilePhoto({
       ) : (
         <FallbackProfilePhoto name={name} className="text-6xl" />
       )}
+      
+      {/* Cosmetic overlays for profile photo */}
+      <CosmeticOverlays 
+        cosmetics={profileCosmetics} 
+        containerRef={containerRef}
+        className="rounded-full overflow-hidden"
+      />
+      
       {isOwnProfile && (
         <label>
           <div className="absolute bottom-0 right-0">

@@ -8,6 +8,7 @@ const addCosmeticSchema = z.object({
   name: z.string().min(1),
   preview: z.string().url(),
   assetUrl: z.string().url(),
+  assetType: z.enum(['html', 'gif', 'image', 'video', 'svg']).optional(),
   metadata: z.record(z.any()).optional()
 });
 
